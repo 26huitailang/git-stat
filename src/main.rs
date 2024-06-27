@@ -1,19 +1,19 @@
+use std::path::Path;
+
 use git2::Repository;
 
+fn clone_or_open_repo(url: &str, into: &str) -> Result<Repository, git2::Error> {
+    if Path::new(into).exists() {
+        Repository::open(into)
+    } else {
+        Repository::clone(url, into)
+    }
+}
 fn main() {
     let url = "https://github.com/26huitailang/yogo.git";
     let into = "./repos/yogo";
-    if std::path::Path::new(into).exists() {
-        match std::fs::remove_dir_all(into) {
-            Ok(_) => {}
-            Err(e) => {
-                panic!("{}", e);
-            }
-        }
-    } else {
-        println!("path not exists: {}", into);
-    }
-    let repo = match Repository::clone(url, into) {
+
+    let repo = match clone_or_open_repo(url, into) {
         Ok(repo) => repo,
         Err(e) => panic!("Failed to clone repository: {}", e),
     };
@@ -22,6 +22,7 @@ fn main() {
 
     // 切换到指定分支
     let branch = repo.find_branch("main", git2::BranchType::Local).unwrap();
+    // TODO: reset hard 便于统计
 
     println!("branch: {}", branch.name().unwrap().unwrap());
     // 遍历这个branch上所有commit
@@ -31,6 +32,6 @@ fn main() {
 
     for oid in rev {
         let commit = repo.find_commit(oid.unwrap()).unwrap();
-        println!("commit: {}", commit.id());
+        println!("commit: {} {}", commit.id(), commit.message().unwrap());
     }
 }

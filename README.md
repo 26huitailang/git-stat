@@ -1,5 +1,7 @@
 # git-stat
 
+working on demo ...
+
 - 克隆repo，可能有多个，放到一个目录下`./repos`
 - 指定repo分支
 - 统计所有commit信息

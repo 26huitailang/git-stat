@@ -1,0 +1,5 @@
+output: [csv]
+repos:
+  - url: https://github.com/26huitailang/yogo.git
+    branchs: [master]
+    authors: [26huitailang, peterChen]

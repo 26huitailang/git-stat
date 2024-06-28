@@ -1,4 +1,9 @@
-use std::{error::Error, fs::File, path::Path};
+use std::{
+    error::Error,
+    ffi::CString,
+    fs::File,
+    path::{self, Path},
+};
 
 use chrono;
 use csv::Writer;
@@ -73,6 +78,11 @@ fn main() {
         let tree = commit.tree().unwrap();
         let parent_tree = parent.tree().unwrap();
         let mut diff_options = DiffOptions::new();
+        // include suffix file type
+        for pathspec_str in vec!["*.rs", "*.c", "*.go"] {
+            let c_pathspec = CString::new(pathspec_str).expect("failed to create CString");
+            diff_options.pathspec(c_pathspec);
+        }
         let diff = repo
             .diff_tree_to_tree(Some(&parent_tree), Some(&tree), Some(&mut diff_options))
             .unwrap();
@@ -87,7 +97,7 @@ fn main() {
             "commit: {} | {} | {} | {} | {}",
             datetime.format("%Y-%m-%d %H:%M:%S"),
             commit.id(),
-            commit.author(),
+            commit.author().name().unwrap_or(""),
             stats.insertions(),
             stats.deletions()
         );
@@ -98,7 +108,7 @@ fn main() {
             [
                 datetime.format("%Y-%m-%d %H:%M:%S").to_string(),
                 commit.id().to_string(),
-                commit.committer().to_string(),
+                commit.committer().name().unwrap_or("").to_string(),
                 commit.message().unwrap().to_string(),
                 stats.insertions().to_string(),
                 stats.deletions().to_string(),

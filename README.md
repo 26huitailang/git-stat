@@ -28,7 +28,8 @@ repos:
 ```
 
 ```shell
-./git-stat --url https://github.com/xxx/xxx.git --branch master --output-csv xxx.csv --output-tui
+./git-stat -f custom.yml
+./git-stat // .git-stat.yml
 ```
 
 ## 交叉编译

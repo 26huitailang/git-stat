@@ -1,7 +1,10 @@
-use std::path::Path;
+use std::{error::Error, fs::File, path::Path};
 
+use chrono;
+use csv::Writer;
 use git2::{DiffOptions, Repository};
 
+const FILENAME: &str = "repo.csv";
 fn clone_or_open_repo(url: &str, into: &str) -> Result<Repository, git2::Error> {
     if Path::new(into).exists() {
         Repository::open(into)
@@ -9,6 +12,33 @@ fn clone_or_open_repo(url: &str, into: &str) -> Result<Repository, git2::Error> 
         Repository::clone(url, into)
     }
 }
+/// 写入csv文件
+///
+/// # 参数
+/// * `filename` - 文件名
+/// * `header` - csv文件头
+/// * `data` - csv文件数据
+pub fn write_csv<P: AsRef<Path>>(
+    filename: P,
+    header: Vec<String>,
+    data: Vec<Vec<String>>,
+) -> Result<(), Box<dyn Error>> {
+    let file = File::create(filename).unwrap();
+    let mut wtr = Writer::from_writer(file);
+
+    wtr.write_record(header)?;
+
+    for record in data {
+        wtr.write_record(record)?;
+    }
+    wtr.flush()?;
+    println!("CSV file written successfully!");
+
+    Ok(())
+    // let lines = data.len();
+    // println!("data has been written to {:?} {}", filename, lines);
+}
+
 fn main() {
     let url = "https://github.com/26huitailang/yogo.git";
     let into = "./repos/yogo";
@@ -30,6 +60,8 @@ fn main() {
     rev.set_sorting(git2::Sort::TIME).unwrap();
     rev.push_head().unwrap();
 
+    let mut csv_data: Vec<Vec<String>> = Vec::new();
+
     for oid in rev {
         let commit = repo.find_commit(oid.unwrap()).unwrap();
         // get commit status
@@ -46,12 +78,42 @@ fn main() {
             .unwrap();
         let stats = diff.stats().unwrap();
 
+        // 时间戳转换
+        let time = commit.time().seconds();
+        // ts to datetime
+        let datetime = chrono::DateTime::from_timestamp(time, 0).unwrap();
+
         println!(
-            "commit: {} {} {} {}",
+            "commit: {} | {} | {} | {} | {}",
+            datetime.format("%Y-%m-%d %H:%M:%S"),
             commit.id(),
             commit.author(),
             stats.insertions(),
             stats.deletions()
         );
+        // append to data
+
+        // _item 加入 csv_data
+        csv_data.push(
+            [
+                datetime.format("%Y-%m-%d %H:%M:%S").to_string(),
+                commit.id().to_string(),
+                commit.committer().to_string(),
+                commit.message().unwrap().to_string(),
+                stats.insertions().to_string(),
+                stats.deletions().to_string(),
+            ]
+            .to_vec(),
+        );
     }
+    // 构造csv header
+    let csv_header = vec![
+        "date".to_string(),
+        "commit_id".to_string(),
+        "author".to_string(),
+        "message".to_string(),
+        "insertions".to_string(),
+        "deletions".to_string(),
+    ];
+    write_csv(FILENAME, csv_header, csv_data).unwrap();
 }

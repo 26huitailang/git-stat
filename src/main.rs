@@ -1,4 +1,4 @@
-use std::{os::macos::raw::stat, path::Path};
+use std::path::Path;
 
 use git2::{DiffOptions, Repository};
 

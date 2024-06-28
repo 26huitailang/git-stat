@@ -1,6 +1,6 @@
-use std::path::Path;
+use std::{os::macos::raw::stat, path::Path};
 
-use git2::Repository;
+use git2::{DiffOptions, Repository};
 
 fn clone_or_open_repo(url: &str, into: &str) -> Result<Repository, git2::Error> {
     if Path::new(into).exists() {
@@ -32,6 +32,26 @@ fn main() {
 
     for oid in rev {
         let commit = repo.find_commit(oid.unwrap()).unwrap();
-        println!("commit: {} {}", commit.id(), commit.message().unwrap());
+        // get commit status
+        // let status = commit.status().unwrap();
+        let parent = match commit.parent(0) {
+            Ok(tree) => tree,
+            Err(_) => continue,
+        };
+        let tree = commit.tree().unwrap();
+        let parent_tree = parent.tree().unwrap();
+        let mut diff_options = DiffOptions::new();
+        let diff = repo
+            .diff_tree_to_tree(Some(&parent_tree), Some(&tree), Some(&mut diff_options))
+            .unwrap();
+        let stats = diff.stats().unwrap();
+
+        println!(
+            "commit: {} {} {} {}",
+            commit.id(),
+            commit.author(),
+            stats.insertions(),
+            stats.deletions()
+        );
     }
 }

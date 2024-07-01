@@ -1,13 +1,10 @@
-use std::{
-    error::Error,
-    ffi::CString,
-    fs::File,
-    path::{self, Path},
-};
+use std::{error::Error, ffi::CString, fs::File, path::Path};
 
 use chrono;
 use csv::Writer;
-use git2::{DiffOptions, Repository};
+use git2::{DiffOptions, Pathspec, Repository};
+
+mod config;
 
 const FILENAME: &str = "repo.csv";
 fn clone_or_open_repo(url: &str, into: &str) -> Result<Repository, git2::Error> {
@@ -66,7 +63,13 @@ fn main() {
     rev.push_head().unwrap();
 
     let mut csv_data: Vec<Vec<String>> = Vec::new();
-
+    let mut diff_options = DiffOptions::new();
+    // include suffix file type
+    for pathspec_str in vec!["!framework", "*.go"] {
+        // let c_pathspec = CString::new(pathspec_str).expect("failed to create CString");
+        diff_options.pathspec(pathspec_str);
+    }
+    // TODO try walk_hide_callback
     for oid in rev {
         let commit = repo.find_commit(oid.unwrap()).unwrap();
         // get commit status
@@ -77,12 +80,6 @@ fn main() {
         };
         let tree = commit.tree().unwrap();
         let parent_tree = parent.tree().unwrap();
-        let mut diff_options = DiffOptions::new();
-        // include suffix file type
-        for pathspec_str in vec!["*.rs", "*.c", "*.go"] {
-            let c_pathspec = CString::new(pathspec_str).expect("failed to create CString");
-            diff_options.pathspec(c_pathspec);
-        }
         let diff = repo
             .diff_tree_to_tree(Some(&parent_tree), Some(&tree), Some(&mut diff_options))
             .unwrap();
@@ -94,12 +91,13 @@ fn main() {
         let datetime = chrono::DateTime::from_timestamp(time, 0).unwrap();
 
         println!(
-            "commit: {} | {} | {} | {} | {}",
+            "commit: {} | {} | {} | {} | {} | {}",
             datetime.format("%Y-%m-%d %H:%M:%S"),
             commit.id(),
             commit.author().name().unwrap_or(""),
             stats.insertions(),
-            stats.deletions()
+            stats.deletions(),
+            commit.summary().unwrap_or(""),
         );
         // append to data
 

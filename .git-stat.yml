@@ -1,7 +1,7 @@
 output: [csv]
 repos:
   - url: https://github.com/26huitailang/yogo.git
-    branchs: [master]
+    branchs: [main, dev]
     authors:
       - name: 26huitailang
         alias: [peterChen]

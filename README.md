@@ -5,9 +5,7 @@ working on demo ...
 - 克隆repo，可能有多个，放到一个目录下`./repos`
 - 指定repo分支
 - 统计所有commit信息
-  - 过滤支持
-    - 文件后缀
-    - [ ] 正则匹配
+  - 过滤支持(pathspec fnmatch语法)
   - 按作者分类
     - [ ] 多个名称聚合
   - 统计单个commit：

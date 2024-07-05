@@ -3,7 +3,7 @@ use std::fs::File;
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
-    pub output: Vec<String>,
+    pub output: String,
     pub repos: Vec<Repo>,
 }
 
@@ -58,7 +58,7 @@ repos:
 "##;
         let config: Config = serde_yaml::from_str(content).unwrap();
         println!("{:?}", config);
-        assert_eq!(config.output[0], "csv");
+        assert_eq!(config.output, "csv");
         assert_eq!(
             config.repos[0].url,
             "https://github.com/26huitailang/yogo.git"

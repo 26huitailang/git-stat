@@ -1,4 +1,4 @@
-output: [csv]
+output: table
 repos:
   - url: https://github.com/26huitailang/yogo.git
     branchs: [main, dev]

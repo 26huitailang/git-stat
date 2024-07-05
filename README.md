@@ -5,17 +5,25 @@ working on demo ...
 - 克隆repo，可能有多个，放到一个目录下`./repos`
 - 指定repo分支
 - 统计所有commit信息
-  - 过滤支持(pathspec fnmatch语法)
-  - 按作者分类
-    - [ ] 多个名称聚合
-  - 统计单个commit：
-    - 插入
-    - 删除
-    - 时间，后面用于过滤
-- 输出csv
-- [ ] 支持tui直接打印（后续支持）
-  - graph
-  - table
+  - 路径过滤支持(pathspec fnmatch语法)
+  - 单个commit：
+    - datetime
+    - branch
+    - commit_id
+    - committer
+    - insertions
+    - deletions
+    - message
+  - 统计
+    - [ ] 作者alias聚合
+    - [ ] insertions/deletions sum
+    - [ ] 时间过滤
+  - [ ] 支持MR识别（这部分代码不应统计）
+- output
+  - csv
+  - tui(ratatui)
+    - table
+    - [ ] graph
 
 ```yml
 output: [csv, tui]

@@ -1,5 +1,5 @@
 use std::{error::Error, fs::File, path::Path};
-
+use std::collections::HashMap;
 use chrono::{DateTime, Utc};
 use csv::Writer;
 use git2::{DiffOptions, Repository};
@@ -46,8 +46,49 @@ pub fn write_csv<P: AsRef<Path>>(
 }
 
 #[derive(Debug)]
+struct CommitInfoVec {
+    commit_info_vec: Vec<CommitInfo>,
+    sum_vec: Vec<CommitInfo>,
+}
+
+impl CommitInfoVec {
+    pub fn new(
+        commit_info_vec: Vec<CommitInfo>,
+    ) -> Self {
+        CommitInfoVec {
+            commit_info_vec,
+            sum_vec: vec![],
+        }
+    }
+    pub fn sum_insertions_deletions_by_branch_and_committer(&mut self) {
+        let mut grouped_data: HashMap<(String, String), (usize, usize)> = HashMap::new();
+
+        // Group by branch and committer, summing insertions
+        for commit_info in &self.commit_info_vec {
+            let key = (commit_info.branch.clone(), commit_info.committer.clone());
+            let (insertions, deletions) = grouped_data.entry(key.clone()).or_insert((0, 0));
+            *insertions += commit_info.insertions;
+            *deletions += commit_info.deletions;
+        }
+
+        // Convert the grouped data back into CommitInfo instances for sum_vec
+        self.sum_vec = grouped_data.into_iter()
+            .map(|((branch, committer), total_lines)| CommitInfo {
+                datetime: None,
+                branch: branch.clone(),
+                commit_id: format!("SUM_{}_{}", branch.clone(), committer), // A fabricated commit ID
+                committer,
+                message: format!("Total lines: +{} -{}", total_lines.0, total_lines.1),
+                insertions: total_lines.0,
+                deletions: total_lines.1, // Assuming we're not tracking total deletions in this context
+            })
+            .collect();
+    }
+}
+
+#[derive(Debug)]
 struct CommitInfo {
-    datetime: DateTime<Utc>,
+    datetime: Option<DateTime<Utc>>,
     branch: String,
     commit_id: String,
     committer: String,
@@ -58,7 +99,7 @@ struct CommitInfo {
 
 impl CommitInfo {
     fn new(
-        datetime: DateTime<Utc>,
+        datetime: Option<DateTime<Utc>>,
         branch: String,
         commit_id: String,
         committer: String,
@@ -74,6 +115,13 @@ impl CommitInfo {
             message,
             insertions,
             deletions,
+        }
+    }
+
+    fn format_datetime(&self) -> String {
+        match &self.datetime {
+            None => "".to_string(),
+            Some(datetime) => {datetime.format("%Y-%m-%d %H:%M:%S").to_string()}
         }
     }
 }
@@ -165,7 +213,7 @@ fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Error>
             // append to data
 
             let commit_row = CommitInfo::new(
-                datetime,
+                datetime.into(),
                 branch_name.to_string(),
                 commit.id().to_string(),
                 commit.committer().name().unwrap_or("").to_string(),
@@ -216,7 +264,7 @@ fn csv_output(data: Vec<CommitInfo>) -> Result<(), Box<dyn Error>> {
     for commit_info in data {
         csv_data.push(
             [
-                commit_info.datetime.format("%Y-%m-%d %H:%M:%S").to_string(),
+                commit_info.format_datetime(),
                 commit_info.branch.to_string(),
                 commit_info.commit_id.to_string(),
                 commit_info.committer.to_string(),
@@ -224,7 +272,7 @@ fn csv_output(data: Vec<CommitInfo>) -> Result<(), Box<dyn Error>> {
                 commit_info.insertions.to_string(),
                 commit_info.deletions.to_string(),
             ]
-            .to_vec(),
+                .to_vec(),
         );
     }
     write_csv(FILENAME, csv_header, csv_data)
@@ -234,7 +282,7 @@ fn generate_data_vec(commit_vec: Vec<CommitInfo>) -> Vec<Data> {
     (0..commit_vec.len())
         .map(|i| {
             Data {
-                date: commit_vec[i].datetime.format("%Y-%m-%d %H:%M:%S").to_string(),
+                date: commit_vec[i].format_datetime(),
                 branch: commit_vec[i].branch.to_string(),
                 committer: commit_vec[i].committer.to_string(),
                 insertions: commit_vec[i].insertions.to_string(),
@@ -246,7 +294,9 @@ fn generate_data_vec(commit_vec: Vec<CommitInfo>) -> Vec<Data> {
 }
 
 fn table_output(data: Vec<CommitInfo>) -> Result<(), Box<dyn Error>> {
-    let data_vec = generate_data_vec(data);
+    let mut commit_vec = CommitInfoVec::new(data);
+    commit_vec.sum_insertions_deletions_by_branch_and_committer();
+    let data_vec = generate_data_vec(commit_vec.sum_vec);
     tui::run(data_vec)
 }
 

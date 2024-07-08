@@ -14,8 +14,11 @@ FLAGS = -C opt-level=3 --edition=2018
 all: build run
 
 # 使用Cargo构建项目
-build:
+build: test
 	$(CARGO) build $(FLAGS)
+
+build-windows: test
+	$(CARGO) build --target=x86_64-pc-windows-gnu
 
 # 运行项目
 run:

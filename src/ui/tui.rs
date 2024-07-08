@@ -1,4 +1,5 @@
 use std::{error::Error, io};
+use data::Data;
 
 use itertools::Itertools;
 use ratatui::{
@@ -19,6 +20,7 @@ use ratatui::{
 };
 use style::palette::tailwind;
 use unicode_width::UnicodeWidthStr;
+use crate::ui::data;
 
 const PALETTES: [tailwind::Palette; 4] = [
     tailwind::BLUE,
@@ -57,39 +59,6 @@ impl TableColors {
     }
 }
 
-pub struct Data {
-    pub date: String,
-    pub branch: String,
-    pub committer: String,
-    pub insertions: String,
-    pub deletions: String,
-}
-
-impl Data {
-    const fn ref_array(&self) -> [&String; 5] {
-        [&self.date, &self.branch, &self.committer, &self.insertions, &self.deletions]
-    }
-
-    fn date(&self) -> &str {
-        &self.date
-    }
-
-    fn branch(&self) -> &str {
-        &self.branch
-    }
-
-    fn committer(&self) -> &str {
-        &self.committer
-    }
-
-    fn insertions(&self) -> &str {
-        &self.insertions
-    }
-
-    fn deletions(&self) -> &str {
-        &self.deletions
-    }
-}
 
 struct App {
     state: TableState,
@@ -154,7 +123,6 @@ impl App {
         self.colors = TableColors::new(&PALETTES[self.color_index]);
     }
 }
-
 
 
 pub fn run(data: Vec<Data>) -> Result<(), Box<dyn Error>> {
@@ -332,7 +300,7 @@ fn render_footer(f: &mut Frame, app: &App, area: Rect) {
 
 #[cfg(test)]
 mod tests {
-    use crate::tui::Data;
+    use crate::ui::data::Data;
 
     #[test]
     fn constraint_len_calculator() {
@@ -353,7 +321,7 @@ mod tests {
             },
         ];
         let (longest_date_len, longest_branch_len, longest_committer_len, longest_insertions_len, longest_deletions_len) =
-            crate::tui::constraint_len_calculator(&test_data);
+            crate::ui::tui::constraint_len_calculator(&test_data);
 
         assert_eq!(19, longest_date_len);
         assert_eq!(4, longest_branch_len);

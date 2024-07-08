@@ -27,7 +27,7 @@ working on demo ...
     - [ ] graph
 
 ```yml
-output: [csv, tui]
+output: [csv, ui]
 repos:
   - url: https://github.com/xxx/xxx.git
     branchs: [master, dev]

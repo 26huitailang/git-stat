@@ -46,10 +46,12 @@ mod tests {
     use super::*;
     #[test]
     fn test_config() {
-        let content = r##"output: [csv]
+        let content = r##"output: csv
 repos:
   - url: https://github.com/26huitailang/yogo.git
-    branchs: [main]
+    username:
+    password:
+    branches: [main]
     authors:
       - name: 26huitailang
         alias: [peterChen]

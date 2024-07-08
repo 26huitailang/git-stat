@@ -2,7 +2,7 @@ use std::{error::Error, fs::File, path::Path};
 use std::collections::HashMap;
 use chrono::{DateTime, Utc};
 use csv::Writer;
-use git2::{DiffOptions, Repository, Tree};
+use git2::{Diff, DiffOptions, Repository, Tree};
 use git2::build::CheckoutBuilder;
 use itertools::Itertools;
 use ratatui::widgets::{Row, StatefulWidget, Table};
@@ -140,7 +140,6 @@ fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Error>
 
     println!("Cloned repository to: {}", repo.path().display());
 
-    // 构造csv header
     let mut commit_data: Vec<CommitInfo> = Vec::new();
     let author_list = repo_conf.get_authors();
     // 切换到指定分支
@@ -162,7 +161,7 @@ fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Error>
                 // I suspect we should be adding some logic to handle dirty working directory states
                 // but this is just an example so maybe not.
                 .force(),
-        ))?;
+        )).expect("checkout failed");
 
         let (object, reference) = repo.revparse_ext(repo.head().unwrap().name().unwrap()).expect("branch not found");
         repo.checkout_tree(&object, None).expect("checkout failed");
@@ -194,6 +193,10 @@ fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Error>
         // TODO try walk_hide_callback
         for oid in rev {
             let commit = repo.find_commit(oid.unwrap()).unwrap();
+            if commit.parent_count() > 1 {
+                println!("commit has more than one parent, maybe merge commit, skip");
+                continue;
+            }
             // commit author 不在 authors中跳过
             if !author_list.contains(&commit.author().name().unwrap().to_string()) {
                 println!(
@@ -204,16 +207,24 @@ fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Error>
             }
             // get commit status
             // let status = commit.status().unwrap();
-            let parent= match commit.parent(0) {
-                Ok(commit) => commit,
-                // optina
-                Err(_) => continue,
-            };
             let tree = commit.tree().unwrap();
-            let parent_tree = parent.tree().unwrap();
-            let diff = repo
-                .diff_tree_to_tree(Some(&parent_tree), Some(&tree), Some(&mut diff_options))
-                .unwrap();
+            let mut diff: Diff;
+
+            match commit.parent(0) {
+                Ok(parent) => {
+                    let parent_tree = parent.tree().unwrap();
+                    diff = repo
+                        .diff_tree_to_tree(Some(&parent_tree), Some(&tree), Some(&mut diff_options))
+                        .unwrap();
+                },
+                Err(_) => {
+                    println!("no parent, try none diff");
+                    diff = repo
+                        .diff_tree_to_tree(None, Some(&tree), Some(&mut diff_options))
+                        .unwrap();
+
+                },
+            };
             let stats = diff.stats().unwrap();
             if stats.files_changed() == 0 {
                 println!("no files changed, skipppp");
@@ -226,7 +237,7 @@ fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Error>
             let datetime = chrono::DateTime::from_timestamp(time, 0).unwrap();
 
             println!(
-                "commit: {} | {} | {} | {} | {} | {} | {}",
+                "commit: {} | {} | {} | {} | +{} | -{} | {}",
                 datetime.format("%Y-%m-%d %H:%M:%S"),
                 branch_name,
                 commit.id(),

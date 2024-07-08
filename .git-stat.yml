@@ -1,4 +1,4 @@
-output: tableghhaahahahabgzzbzhisssoiSÍÍÍÍÍ∂r
+output: csv
 repos:
 #  - url: https://github.com/26huitailang/yogo.git
 #    branchs: [main, dev]
@@ -15,5 +15,5 @@ repos:
       - name: 26huitailang
         alias: [ChenSJ]
     pathspec:
-      - "*.md"
+#      - "*.md"
       - "*.go"

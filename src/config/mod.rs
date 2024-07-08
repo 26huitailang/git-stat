@@ -7,15 +7,17 @@ pub struct Config {
     pub repos: Vec<Repo>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Repo {
     pub url: String,
+    pub username: String,
+    pub password: String,
     pub branches: Vec<String>,
     pub authors: Vec<Author>,
     pub pathspec: Vec<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Author {
     pub name: String,
     pub alias: Vec<String>,
@@ -63,7 +65,7 @@ repos:
             config.repos[0].url,
             "https://github.com/26huitailang/yogo.git"
         );
-        assert_eq!(config.repos[0].branchs[0], "main");
+        assert_eq!(config.repos[0].branches[0], "main");
         assert_eq!(config.repos[0].authors[0].name, "26huitailang");
         assert_eq!(config.repos[0].authors[0].alias, &["peterChen"]);
         assert_eq!(config.repos[0].pathspec[0], "*.go");

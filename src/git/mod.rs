@@ -13,7 +13,7 @@
  */
 
 use clap::Parser;
-use git2::Repository;
+use git2::{Cred, Direction, RemoteCallbacks, Repository};
 use std::io::{self, Write};
 use std::str;
 
@@ -27,6 +27,8 @@ fn do_fetch<'a>(
     repo: &'a git2::Repository,
     refs: &[&str],
     remote: &'a mut git2::Remote,
+    username: &str,
+    password: &str,
 ) -> Result<git2::AnnotatedCommit<'a>, git2::Error> {
     let mut cb = git2::RemoteCallbacks::new();
 
@@ -49,6 +51,12 @@ fn do_fetch<'a>(
         }
         io::stdout().flush().unwrap();
         true
+    });
+    cb.credentials(|_url, username_from_url, _allowed_types| {
+        Cred::userpass_plaintext(
+            username,
+            password,
+        )
     });
 
     let mut fo = git2::FetchOptions::new();
@@ -191,11 +199,18 @@ fn do_merge<'a>(
     }
     Ok(())
 }
-
-pub fn pull(args: &Args, repo: &Repository) -> Result<(), git2::Error> {
+fn create_callbacks<'a>(username: &'a str, password: &'a str) -> RemoteCallbacks<'a> {
+    let mut callbacks = RemoteCallbacks::new();
+    &callbacks.credentials(|str, str_opt, cred_type| {
+        Cred::userpass_plaintext(username, password)
+    });
+    callbacks
+}
+pub fn pull(args: &Args, repo: &Repository, username: &str, password: &str) -> Result<(), git2::Error> {
     let remote_name = args.arg_remote.as_ref().map(|s| &s[..]).unwrap_or("origin");
     let remote_branch = args.arg_branch.as_ref().map(|s| &s[..]).unwrap_or("main");
     let mut remote = repo.find_remote(remote_name)?;
-    let fetch_commit = do_fetch(&repo, &[remote_branch], &mut remote)?;
+    remote.connect_auth(Direction::Fetch, Some(create_callbacks(username, password)), None).unwrap();
+    let fetch_commit = do_fetch(&repo, &[remote_branch], &mut remote, username, password)?;
     do_merge(&repo, &remote_branch, fetch_commit)
 }

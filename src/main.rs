@@ -2,7 +2,7 @@ use std::{error::Error, fs::File, path::Path};
 use std::collections::HashMap;
 use chrono::{DateTime, Utc};
 use csv::Writer;
-use git2::{Diff, DiffOptions, Repository, Tree};
+use git2::{Cred, Diff, DiffOptions, RemoteCallbacks, Repository, Tree};
 use git2::build::CheckoutBuilder;
 use itertools::Itertools;
 use ratatui::widgets::{Row, StatefulWidget, Table};
@@ -12,13 +12,28 @@ mod tui;
 mod git;
 
 use tui::*;
+use crate::config::Repo;
 
 const FILENAME: &str = "repo.csv";
-fn clone_or_open_repo(url: &str, into: &str) -> Result<Repository, git2::Error> {
+fn clone_or_open_repo(url: &str, into: &str, repo_conf: config::Repo) -> Result<Repository, git2::Error> {
     if Path::new(into).exists() {
         Repository::open(into)
     } else {
-        Repository::clone(url, into)
+        let mut callbacks = RemoteCallbacks::new();
+        callbacks.credentials(|_url, username_from_url, _allowed_types| {
+            Cred::userpass_plaintext(
+                repo_conf.username.as_str(),
+                repo_conf.password.as_str(),
+            )
+        });
+        // Prepare fetch options.
+        let mut fo = git2::FetchOptions::new();
+        fo.remote_callbacks(callbacks);
+
+
+        let mut builder = git2::build::RepoBuilder::new();
+        builder.fetch_options(fo);
+        builder.clone(url, into.as_ref())
     }
 }
 /// 写入csv文件
@@ -124,16 +139,18 @@ impl CommitInfo {
     fn format_datetime(&self) -> String {
         match &self.datetime {
             None => "".to_string(),
-            Some(datetime) => {datetime.format("%Y-%m-%d %H:%M:%S").to_string()}
+            Some(datetime) => { datetime.format("%Y-%m-%d %H:%M:%S").to_string() }
         }
     }
 }
+
+
 fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Error>> {
     let url = repo_conf.url.as_str();
     let repo_name = url.split("/").last().unwrap().split(".").nth(0).unwrap();
     let into = format!("./repos/{}", repo_name);
 
-    let repo = match clone_or_open_repo(url, into.as_str()) {
+    let repo = match clone_or_open_repo(url, into.as_str(), repo_conf.clone()) {
         Ok(repo) => repo,
         Err(e) => panic!("Failed to clone repository: {}", e),
     };
@@ -152,7 +169,7 @@ fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Error>
             arg_remote: Some("origin".to_string()),
             arg_branch: Some(branch_name.to_string()),
         };
-        git::pull(&args, &repo).expect("git pull failed");
+        git::pull(&args, &repo, repo_conf.username.as_str(), repo_conf.password.as_str()).expect("git pull failed");
         // print current branch  and commit ref
         repo.set_head(format!("refs/remotes/origin/{}", branch_name).as_str());
         repo.checkout_head(Some(
@@ -216,19 +233,18 @@ fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Error>
                     diff = repo
                         .diff_tree_to_tree(Some(&parent_tree), Some(&tree), Some(&mut diff_options))
                         .unwrap();
-                },
+                }
                 Err(_) => {
                     println!("no parent, try none diff");
                     diff = repo
                         .diff_tree_to_tree(None, Some(&tree), Some(&mut diff_options))
                         .unwrap();
-
-                },
+                }
             };
             let stats = diff.stats().unwrap();
             if stats.files_changed() == 0 {
                 println!("no files changed, skipppp");
-                continue
+                continue;
             }
 
             // 时间戳转换

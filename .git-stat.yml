@@ -11,6 +11,8 @@ repos:
 #      - "!vendor"
   - url: https://gitlab.com/26huitailang/test-git-stat.git
     branches: [main, dev]
+    username:
+    password:
     authors:
       - name: 26huitailang
         alias: [ChenSJ]

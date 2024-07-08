@@ -10,7 +10,7 @@ pub struct Config {
 #[derive(Debug, Deserialize)]
 pub struct Repo {
     pub url: String,
-    pub branchs: Vec<String>,
+    pub branches: Vec<String>,
     pub authors: Vec<Author>,
     pub pathspec: Vec<String>,
 }

@@ -1,11 +1,19 @@
-output: table
+output: tableghhaahahahabgzzbzhisssoiSÍÍÍÍÍ∂r
 repos:
-  - url: https://github.com/26huitailang/yogo.git
-    branchs: [main, dev]
+#  - url: https://github.com/26huitailang/yogo.git
+#    branchs: [main, dev]
+#    authors:
+#      - name: 26huitailang
+#        alias: [peterChen]
+#    pathspec:
+#      - "*.go"
+#      - "!framework"
+#      - "!vendor"
+  - url: https://gitlab.com/26huitailang/test-git-stat.git
+    branches: [main, dev]
     authors:
       - name: 26huitailang
-        alias: [peterChen]
+        alias: [ChenSJ]
     pathspec:
+      - "*.md"
       - "*.go"
-      - "!framework"
-      - "!vendor"

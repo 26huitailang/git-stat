@@ -2,12 +2,15 @@ use std::{error::Error, fs::File, path::Path};
 use std::collections::HashMap;
 use chrono::{DateTime, Utc};
 use csv::Writer;
-use git2::{DiffOptions, Repository};
+use git2::{DiffOptions, Repository, Tree};
+use git2::build::CheckoutBuilder;
 use itertools::Itertools;
 use ratatui::widgets::{Row, StatefulWidget, Table};
 
 mod config;
 mod tui;
+mod git;
+
 use tui::*;
 
 const FILENAME: &str = "repo.csv";
@@ -141,10 +144,27 @@ fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Error>
     let mut commit_data: Vec<CommitInfo> = Vec::new();
     let author_list = repo_conf.get_authors();
     // 切换到指定分支
-    for b in repo_conf.branchs {
+    for b in repo_conf.branches {
         let branch_name = b.as_str();
-        // 分支切换
-        let (object, reference) = repo.revparse_ext(branch_name).expect("branch not found");
+        // TODO: 分支切换，支持远端分支切换，reset hard（force）
+        // TODO: origin is hard code
+        let remote = repo.find_remote("origin").expect("remote not found");
+        let args = git::Args {
+            arg_remote: Some("origin".to_string()),
+            arg_branch: Some(branch_name.to_string()),
+        };
+        git::pull(&args, &repo).expect("git pull failed");
+        // print current branch  and commit ref
+        repo.set_head(format!("refs/remotes/origin/{}", branch_name).as_str());
+        repo.checkout_head(Some(
+            git2::build::CheckoutBuilder::default()
+                // For some reason the force is required to make the working directory actually get updated
+                // I suspect we should be adding some logic to handle dirty working directory states
+                // but this is just an example so maybe not.
+                .force(),
+        ))?;
+
+        let (object, reference) = repo.revparse_ext(repo.head().unwrap().name().unwrap()).expect("branch not found");
         repo.checkout_tree(&object, None).expect("checkout failed");
         match reference {
             Some(gref) => {
@@ -167,7 +187,7 @@ fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Error>
 
         let mut diff_options = DiffOptions::new();
         // include suffix file type
-        for pathspec_str in vec!["!framework", "*.go"] {
+        for pathspec_str in &repo_conf.pathspec {
             // let c_pathspec = CString::new(pathspec_str).expect("failed to create CString");
             diff_options.pathspec(pathspec_str);
         }
@@ -184,8 +204,9 @@ fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Error>
             }
             // get commit status
             // let status = commit.status().unwrap();
-            let parent = match commit.parent(0) {
-                Ok(tree) => tree,
+            let parent= match commit.parent(0) {
+                Ok(commit) => commit,
+                // optina
                 Err(_) => continue,
             };
             let tree = commit.tree().unwrap();
@@ -194,6 +215,10 @@ fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Error>
                 .diff_tree_to_tree(Some(&parent_tree), Some(&tree), Some(&mut diff_options))
                 .unwrap();
             let stats = diff.stats().unwrap();
+            if stats.files_changed() == 0 {
+                println!("no files changed, skipppp");
+                continue
+            }
 
             // 时间戳转换
             let time = commit.time().seconds();

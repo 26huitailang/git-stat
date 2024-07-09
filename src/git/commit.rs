@@ -27,6 +27,7 @@ fn clone_or_open_repo(url: &str, into: &str, repo_conf: config::Repo) -> Result<
 }
 #[derive(Debug)]
 pub struct CommitInfo {
+    pub repo_name: String,
     pub datetime: Option<DateTime<Utc>>,
     pub branch: String,
     pub commit_id: String,
@@ -38,6 +39,7 @@ pub struct CommitInfo {
 
 impl CommitInfo {
     fn new(
+        repo_name: String,
         datetime: Option<DateTime<Utc>>,
         branch: String,
         commit_id: String,
@@ -47,6 +49,7 @@ impl CommitInfo {
         deletions: usize,
     ) -> Self {
         CommitInfo {
+            repo_name,
             datetime,
             branch,
             commit_id,
@@ -81,11 +84,11 @@ impl CommitInfoVec {
         }
     }
     pub fn sum_insertions_deletions_by_branch_and_author(&mut self) {
-        let mut grouped_data: HashMap<(String, String), (usize, usize)> = HashMap::new();
+        let mut grouped_data: HashMap<(String, String, String), (usize, usize)> = HashMap::new();
 
         // Group by branch and author, summing insertions
         for commit_info in &self.commit_info_vec {
-            let key = (commit_info.branch.clone(), commit_info.author.clone());
+            let key = (commit_info.repo_name.clone(), commit_info.branch.clone(), commit_info.author.clone());
             let (insertions, deletions) = grouped_data.entry(key.clone()).or_insert((0, 0));
             *insertions += commit_info.insertions;
             *deletions += commit_info.deletions;
@@ -93,7 +96,8 @@ impl CommitInfoVec {
 
         // Convert the grouped data back into CommitInfo instances for sum_vec
         self.sum_vec = grouped_data.into_iter()
-            .map(|((branch, author), total_lines)| CommitInfo {
+            .map(|((repo_name, branch, author), total_lines)| CommitInfo {
+                repo_name,
                 datetime: None,
                 branch: branch.clone(),
                 commit_id: format!("SUM_{}_{}", branch.clone(), author), // A fabricated commit ID
@@ -107,8 +111,7 @@ impl CommitInfoVec {
 }
 pub fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Error>> {
     let url = repo_conf.url.as_str();
-    let repo_name = url.split("/").last().unwrap().split(".").nth(0).unwrap();
-    let into = format!("./repos/{}", repo_name);
+    let into = format!("./repos/{}", repo_conf.repo_name());
 
     let repo = match clone_or_open_repo(url, into.as_str(), repo_conf.clone()) {
         Ok(repo) => repo,
@@ -164,10 +167,9 @@ pub fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Er
         let mut diff_options = DiffOptions::new();
         // include suffix file type
         for pathspec_str in &repo_conf.pathspec {
-            // let c_pathspec = CString::new(pathspec_str).expect("failed to create CString");
+            // TODO 这里 !framework 没有生效
             diff_options.pathspec(pathspec_str);
         }
-        // TODO try walk_hide_callback
         for oid in rev {
             let commit = repo.find_commit(oid.unwrap()).unwrap();
             if commit.parent_count() > 1 {
@@ -222,7 +224,8 @@ pub fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Er
                 }
             };
             println!(
-                "commit: {} | {} | {} | {} | +{} | -{} | {}",
+                "repo: {} commit: {} | {} | {} | {} | +{} | -{} | {}",
+                repo_conf.repo_name(),
                 datetime.format("%Y-%m-%d %H:%M:%S"),
                 branch_name,
                 commit.id(),
@@ -234,6 +237,7 @@ pub fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Er
             // append to data
 
             let commit_row = CommitInfo::new(
+                repo_conf.repo_name().to_string(),
                 datetime.into(),
                 branch_name.to_string(),
                 commit.id().to_string(),

@@ -1,4 +1,5 @@
 pub struct Data {
+    pub repo_name: String,
     pub date: String,
     pub branch: String,
     pub author: String,
@@ -7,8 +8,12 @@ pub struct Data {
 }
 
 impl Data {
-    pub const fn ref_array(&self) -> [&String; 5] {
-        [&self.date, &self.branch, &self.author, &self.insertions, &self.deletions]
+    pub const fn ref_array(&self) -> [&String; 6] {
+        [&self.repo_name, &self.date, &self.branch, &self.author, &self.insertions, &self.deletions]
+    }
+
+    pub fn repo_name(&self) -> &str {
+        &self.repo_name
     }
 
     pub fn date(&self) -> &str {

@@ -1,14 +1,16 @@
 output: table
 repos:
-#  - url: https://github.com/26huitailang/yogo.git
-#    branchs: [main, dev]
-#    authors:
-#      - name: 26huitailang
-#        alias: [peterChen]
-#    pathspec:
-#      - "*.go"
-#      - "!framework"
-#      - "!vendor"
+  - url: https://github.com/26huitailang/yogo.git
+    branches: [main, dev]
+    username:
+    password:
+    authors:
+      - name: 26huitailang
+        alias: [peterChen]
+    pathspec:
+      - "*.go"
+      - "!framework"
+      - "!vendor"
   - url: https://gitlab.com/26huitailang/test-git-stat.git
     branches: [main, dev]
     username:

@@ -8,7 +8,7 @@ mod ui;
 mod git;
 
 use ui::*;
-use crate::config::Repo;
+use crate::git::commit::CommitInfo;
 use crate::ui::data::Data;
 
 const FILENAME: &str = "repo.csv";
@@ -94,6 +94,7 @@ fn vec_commit_to_data(commit_vec: Vec<git::commit::CommitInfo>) -> Vec<Data> {
     (0..commit_vec.len())
         .map(|i| {
             Data {
+                repo_name: commit_vec[i].repo_name.to_string(),
                 date: commit_vec[i].format_datetime(),
                 branch: commit_vec[i].branch.to_string(),
                 author: commit_vec[i].author.to_string(),
@@ -113,16 +114,18 @@ fn table_output(data: Vec<git::commit::CommitInfo>) -> Result<(), Box<dyn Error>
 }
 
 fn main() {
-    let conf = config::new(".git-stat.yml");
+    let conf = config::Config::new(".git-stat.yml");
+    let mut repo_data: Vec<CommitInfo> = vec!();
     for repo in conf.repos {
-        let repo_data = git::commit::repo_parse(repo).unwrap();
-        match OutputType::from_str(conf.output.as_str()).expect("output not match") {
-            OutputType::CSV => {
-                csv_output(repo_data).expect("csv output failed");
-            }
-            OutputType::TABLE => {
-                table_output(repo_data).expect("table output failed");
-            }
+        let data = git::commit::repo_parse(repo).unwrap();
+        repo_data.extend(data);
+    }
+    match OutputType::from_str(conf.output.as_str()).expect("output not match") {
+        OutputType::CSV => {
+            csv_output(repo_data).expect("csv output failed");
+        }
+        OutputType::TABLE => {
+            table_output(repo_data).expect("table output failed");
         }
     }
 }

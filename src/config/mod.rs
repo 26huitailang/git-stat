@@ -23,14 +23,19 @@ pub struct Author {
     pub alias: Vec<String>,
 }
 
-pub fn new(filename: &str) -> Config {
-    let reader = File::open(filename).unwrap();
-    let config: Config = serde_yaml::from_reader(reader).unwrap();
-    config
+impl Config {
+    pub fn new(filename: &str) -> Config {
+        let reader = File::open(filename).unwrap();
+        let config: Config = serde_yaml::from_reader(reader).unwrap();
+        config
+    }
 }
 
 // 为Struct实现一个方法
 impl Repo {
+    pub fn repo_name(&self) -> &str {
+        self.url.split("/").last().unwrap().split(".").nth(0).unwrap()
+    }
     pub fn get_authors(&self) -> Vec<String> {
         let mut authors = Vec::new();
         for author in &self.authors {

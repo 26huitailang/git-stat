@@ -63,7 +63,7 @@ impl TableColors {
 struct App {
     state: TableState,
     items: Vec<Data>,
-    longest_item_lens: (u16, u16, u16, u16, u16), // order is (name, address, email)
+    longest_item_lens: (u16, u16, u16, u16, u16, u16),
     scroll_state: ScrollbarState,
     colors: TableColors,
     color_index: usize,
@@ -192,7 +192,7 @@ fn render_table(f: &mut Frame, app: &mut App, area: Rect) {
         .add_modifier(Modifier::REVERSED)
         .fg(app.colors.selected_style_fg);
 
-    let header = ["date", "branch", "author", "insertions", "deletions"]
+    let header = ["repo", "date", "branch", "author", "insertions", "deletions"]
         .into_iter()
         .map(Cell::from)
         .collect::<Row>()
@@ -215,11 +215,12 @@ fn render_table(f: &mut Frame, app: &mut App, area: Rect) {
         rows,
         [
             // + 1 is for padding.
-            Constraint::Length(app.longest_item_lens.0 + 1),
+            Constraint::Length(app.longest_item_lens.0),
             Constraint::Min(app.longest_item_lens.1 + 1),
             Constraint::Min(app.longest_item_lens.2),
             Constraint::Min(app.longest_item_lens.3),
             Constraint::Min(app.longest_item_lens.4),
+            Constraint::Min(app.longest_item_lens.5),
         ],
     )
         .header(header)
@@ -235,7 +236,13 @@ fn render_table(f: &mut Frame, app: &mut App, area: Rect) {
     f.render_stateful_widget(t, area, &mut app.state);
 }
 
-fn constraint_len_calculator(items: &[Data]) -> (u16, u16, u16, u16, u16) {
+fn constraint_len_calculator(items: &[Data]) -> (u16, u16, u16, u16, u16, u16) {
+    let repo_len = items
+        .iter()
+        .map(Data::repo_name)
+        .map(UnicodeWidthStr::width)
+        .max()
+        .unwrap_or(0);
     let date_len = items
         .iter()
         .map(Data::date)
@@ -269,7 +276,7 @@ fn constraint_len_calculator(items: &[Data]) -> (u16, u16, u16, u16, u16) {
         .unwrap_or(0);
 
     #[allow(clippy::cast_possible_truncation)]
-    (date_len as u16, branch_len as u16, author_len as u16, insertions_len as u16, deletions_len as u16)
+    (repo_len as u16, date_len as u16, branch_len as u16, author_len as u16, insertions_len as u16, deletions_len as u16)
 }
 
 fn render_scrollbar(f: &mut Frame, app: &mut App, area: Rect) {
@@ -306,6 +313,7 @@ mod tests {
     fn constraint_len_calculator() {
         let test_data = vec![
             Data {
+                repo_name: "test-git-stats".to_string(),
                 date: "2024-07-05 10:17:01".to_string(),
                 branch: "main".to_string(),
                 author: "Peter".to_string(),
@@ -313,6 +321,7 @@ mod tests {
                 deletions: "123".to_string(),
             },
             Data {
+                repo_name: "test-git-stats2".to_string(),
                 date: "2024-06-07 10:17:01".to_string(),
                 branch: "dev".to_string(),
                 author: "26huitailang".to_string(),
@@ -320,9 +329,10 @@ mod tests {
                 deletions: "235".to_string(),
             },
         ];
-        let (longest_date_len, longest_branch_len, longest_author_len, longest_insertions_len, longest_deletions_len) =
+        let (longest_repo_len, longest_date_len, longest_branch_len, longest_author_len, longest_insertions_len, longest_deletions_len) =
             crate::ui::tui::constraint_len_calculator(&test_data);
 
+        assert_eq!(15, longest_repo_len);
         assert_eq!(19, longest_date_len);
         assert_eq!(4, longest_branch_len);
         assert_eq!(12, longest_author_len);

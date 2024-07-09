@@ -120,7 +120,7 @@ pub fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Er
     let mut commit_data: Vec<CommitInfo> = Vec::new();
     let author_list = repo_conf.get_authors();
     // 切换到指定分支
-    for b in repo_conf.branches {
+    for b in &repo_conf.branches {
         let branch_name = b.as_str();
         // TODO: 分支切换，支持远端分支切换，reset hard（force）
         // TODO: origin is hard code
@@ -212,12 +212,21 @@ pub fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Er
             // ts to datetime
             let datetime = chrono::DateTime::from_timestamp(time, 0).unwrap();
 
+            let author = match repo_conf.map_alias_to_name(commit.author().name().clone().unwrap()) {
+                Some(name) => {
+                    name
+                },
+                None => {
+                    println!("no author name found, use author name");
+                    commit.author().name().unwrap().to_string()
+                }
+            };
             println!(
                 "commit: {} | {} | {} | {} | +{} | -{} | {}",
                 datetime.format("%Y-%m-%d %H:%M:%S"),
                 branch_name,
                 commit.id(),
-                commit.author().name().unwrap_or(""),
+                author,
                 stats.insertions(),
                 stats.deletions(),
                 commit.summary().unwrap_or(""),
@@ -228,7 +237,7 @@ pub fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Er
                 datetime.into(),
                 branch_name.to_string(),
                 commit.id().to_string(),
-                commit.author().name().unwrap_or("").to_string(),
+                author,
                 commit.message().unwrap().to_string(),
                 stats.insertions(),
                 stats.deletions(),

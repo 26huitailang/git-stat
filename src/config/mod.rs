@@ -39,6 +39,19 @@ impl Repo {
         }
         authors
     }
+
+    pub fn map_alias_to_name(&self, alias: &str) -> Option<String> {
+        for author in &self.authors {
+            if author.name == alias {
+                return Some(author.name.clone());
+            }
+            if author.alias.contains(&alias.to_string()) {
+                println!("alias: {} mapped to name: {}", alias, author.name);
+                return Some(author.name.clone());
+            }
+        }
+        None
+    }
 }
 
 #[cfg(test)]

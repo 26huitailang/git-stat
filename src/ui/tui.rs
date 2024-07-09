@@ -192,7 +192,7 @@ fn render_table(f: &mut Frame, app: &mut App, area: Rect) {
         .add_modifier(Modifier::REVERSED)
         .fg(app.colors.selected_style_fg);
 
-    let header = ["date", "branch", "committer", "insertions", "deletions"]
+    let header = ["date", "branch", "author", "insertions", "deletions"]
         .into_iter()
         .map(Cell::from)
         .collect::<Row>()
@@ -249,9 +249,9 @@ fn constraint_len_calculator(items: &[Data]) -> (u16, u16, u16, u16, u16) {
         .map(UnicodeWidthStr::width)
         .max()
         .unwrap_or(0);
-    let committer_len = items
+    let author_len = items
         .iter()
-        .map(Data::committer)
+        .map(Data::author)
         .map(UnicodeWidthStr::width)
         .max()
         .unwrap_or(0);
@@ -269,7 +269,7 @@ fn constraint_len_calculator(items: &[Data]) -> (u16, u16, u16, u16, u16) {
         .unwrap_or(0);
 
     #[allow(clippy::cast_possible_truncation)]
-    (date_len as u16, branch_len as u16, committer_len as u16, insertions_len as u16, deletions_len as u16)
+    (date_len as u16, branch_len as u16, author_len as u16, insertions_len as u16, deletions_len as u16)
 }
 
 fn render_scrollbar(f: &mut Frame, app: &mut App, area: Rect) {
@@ -308,24 +308,24 @@ mod tests {
             Data {
                 date: "2024-07-05 10:17:01".to_string(),
                 branch: "main".to_string(),
-                committer: "Peter".to_string(),
+                author: "Peter".to_string(),
                 insertions: "19".to_string(),
                 deletions: "123".to_string(),
             },
             Data {
                 date: "2024-06-07 10:17:01".to_string(),
                 branch: "dev".to_string(),
-                committer: "26huitailang".to_string(),
+                author: "26huitailang".to_string(),
                 insertions: "1191".to_string(),
                 deletions: "235".to_string(),
             },
         ];
-        let (longest_date_len, longest_branch_len, longest_committer_len, longest_insertions_len, longest_deletions_len) =
+        let (longest_date_len, longest_branch_len, longest_author_len, longest_insertions_len, longest_deletions_len) =
             crate::ui::tui::constraint_len_calculator(&test_data);
 
         assert_eq!(19, longest_date_len);
         assert_eq!(4, longest_branch_len);
-        assert_eq!(12, longest_committer_len);
+        assert_eq!(12, longest_author_len);
         assert_eq!(4, longest_insertions_len);
         assert_eq!(3, longest_deletions_len);
     }

@@ -30,7 +30,7 @@ pub struct CommitInfo {
     pub datetime: Option<DateTime<Utc>>,
     pub branch: String,
     pub commit_id: String,
-    pub committer: String,
+    pub author: String,
     pub message: String,
     pub insertions: usize,
     pub deletions: usize,
@@ -41,7 +41,7 @@ impl CommitInfo {
         datetime: Option<DateTime<Utc>>,
         branch: String,
         commit_id: String,
-        committer: String,
+        author: String,
         message: String,
         insertions: usize,
         deletions: usize,
@@ -50,7 +50,7 @@ impl CommitInfo {
             datetime,
             branch,
             commit_id,
-            committer,
+            author,
             message,
             insertions,
             deletions,
@@ -80,12 +80,12 @@ impl CommitInfoVec {
             sum_vec: vec![],
         }
     }
-    pub fn sum_insertions_deletions_by_branch_and_committer(&mut self) {
+    pub fn sum_insertions_deletions_by_branch_and_author(&mut self) {
         let mut grouped_data: HashMap<(String, String), (usize, usize)> = HashMap::new();
 
-        // Group by branch and committer, summing insertions
+        // Group by branch and author, summing insertions
         for commit_info in &self.commit_info_vec {
-            let key = (commit_info.branch.clone(), commit_info.committer.clone());
+            let key = (commit_info.branch.clone(), commit_info.author.clone());
             let (insertions, deletions) = grouped_data.entry(key.clone()).or_insert((0, 0));
             *insertions += commit_info.insertions;
             *deletions += commit_info.deletions;
@@ -93,11 +93,11 @@ impl CommitInfoVec {
 
         // Convert the grouped data back into CommitInfo instances for sum_vec
         self.sum_vec = grouped_data.into_iter()
-            .map(|((branch, committer), total_lines)| CommitInfo {
+            .map(|((branch, author), total_lines)| CommitInfo {
                 datetime: None,
                 branch: branch.clone(),
-                commit_id: format!("SUM_{}_{}", branch.clone(), committer), // A fabricated commit ID
-                committer,
+                commit_id: format!("SUM_{}_{}", branch.clone(), author), // A fabricated commit ID
+                author,
                 message: format!("Total lines: +{} -{}", total_lines.0, total_lines.1),
                 insertions: total_lines.0,
                 deletions: total_lines.1, // Assuming we're not tracking total deletions in this context
@@ -228,7 +228,7 @@ pub fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Er
                 datetime.into(),
                 branch_name.to_string(),
                 commit.id().to_string(),
-                commit.committer().name().unwrap_or("").to_string(),
+                commit.author().name().unwrap_or("").to_string(),
                 commit.message().unwrap().to_string(),
                 stats.insertions(),
                 stats.deletions(),

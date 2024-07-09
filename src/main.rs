@@ -79,7 +79,7 @@ fn csv_output(data: Vec<git::commit::CommitInfo>) -> Result<(), Box<dyn Error>> 
                 commit_info.format_datetime(),
                 commit_info.branch.to_string(),
                 commit_info.commit_id.to_string(),
-                commit_info.committer.to_string(),
+                commit_info.author.to_string(),
                 commit_info.message.to_string(),
                 commit_info.insertions.to_string(),
                 commit_info.deletions.to_string(),
@@ -96,7 +96,7 @@ fn vec_commit_to_data(commit_vec: Vec<git::commit::CommitInfo>) -> Vec<Data> {
             Data {
                 date: commit_vec[i].format_datetime(),
                 branch: commit_vec[i].branch.to_string(),
-                committer: commit_vec[i].committer.to_string(),
+                author: commit_vec[i].author.to_string(),
                 insertions: commit_vec[i].insertions.to_string(),
                 deletions: commit_vec[i].deletions.to_string(),
             }
@@ -107,7 +107,7 @@ fn vec_commit_to_data(commit_vec: Vec<git::commit::CommitInfo>) -> Vec<Data> {
 
 fn table_output(data: Vec<git::commit::CommitInfo>) -> Result<(), Box<dyn Error>> {
     let mut commit_vec = git::commit::CommitInfoVec::new(data);
-    commit_vec.sum_insertions_deletions_by_branch_and_committer();
+    commit_vec.sum_insertions_deletions_by_branch_and_author();
     let data_vec = vec_commit_to_data(commit_vec.sum_vec);
     ui::tui::run(data_vec)
 }

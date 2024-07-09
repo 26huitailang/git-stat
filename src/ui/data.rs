@@ -1,14 +1,14 @@
 pub struct Data {
     pub date: String,
     pub branch: String,
-    pub committer: String,
+    pub author: String,
     pub insertions: String,
     pub deletions: String,
 }
 
 impl Data {
     pub const fn ref_array(&self) -> [&String; 5] {
-        [&self.date, &self.branch, &self.committer, &self.insertions, &self.deletions]
+        [&self.date, &self.branch, &self.author, &self.insertions, &self.deletions]
     }
 
     pub fn date(&self) -> &str {
@@ -19,8 +19,8 @@ impl Data {
         &self.branch
     }
 
-    pub fn committer(&self) -> &str {
-        &self.committer
+    pub fn author(&self) -> &str {
+        &self.author
     }
 
     pub fn insertions(&self) -> &str {

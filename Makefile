@@ -18,7 +18,7 @@ build: test
 	$(CARGO) build $(FLAGS)
 
 build-windows: test
-	$(CARGO) build --target=x86_64-pc-windows-gnu
+	$(CARGO) build --target=x86_64-pc-windows-gnu --release
 
 # 运行项目
 run:

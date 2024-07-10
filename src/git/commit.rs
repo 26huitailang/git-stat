@@ -104,7 +104,7 @@ impl CommitInfoVec {
                 repo_name,
                 datetime: None,
                 branch: branch.clone(),
-                commit_id: format!("SUM_{}_{}", branch.clone(), author), // A fabricated commit ID
+                commit_id: "".to_string(),
                 author,
                 message: format!("Total lines: +{} -{}", total_lines.0, total_lines.1),
                 insertions: total_lines.0,

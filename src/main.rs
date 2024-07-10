@@ -67,7 +67,7 @@ impl OutputType {
 }
 
 trait Output {
-    fn output(&self, data: &CommitInfoVec) -> Result<(), Box<dyn Error>>;
+    fn output(&self, data: Vec<CommitInfo>) -> Result<(), Box<dyn Error>>;
 }
 
 struct CsvOutput {
@@ -75,7 +75,7 @@ struct CsvOutput {
 }
 
 impl Output for CsvOutput {
-    fn output(&self, data: &CommitInfoVec) -> Result<(), Box<dyn Error>> {
+    fn output(&self, data: Vec<CommitInfo>) -> Result<(), Box<dyn Error>> {
         let csv_header = vec![
             "repo".to_string(),
             "date".to_string(),
@@ -87,7 +87,7 @@ impl Output for CsvOutput {
             "deletions".to_string(),
         ];
         let mut csv_data: Vec<Vec<String>> = Vec::new();
-        for commit_info in &data.commit_info_vec {
+        for commit_info in data {
             csv_data.push(
                 [
                     commit_info.repo_name.to_string(),
@@ -122,10 +122,8 @@ fn vec_commit_to_data(commit_vec: Vec<git::commit::CommitInfo>) -> Vec<Data> {
 
 struct TableOutput;
 impl Output for TableOutput {
-    fn output(&self, data: &CommitInfoVec) -> Result<(), Box<dyn Error>> {
-        let mut new_data = data.clone();
-        &new_data.sum_insertions_deletions_by_branch_and_author();
-        let data_vec = vec_commit_to_data(new_data.sum_vec);
+    fn output(&self, data: Vec<CommitInfo>) -> Result<(), Box<dyn Error>> {
+        let data_vec = vec_commit_to_data(data);
         ui::tui::run(data_vec)
     }
 }
@@ -200,22 +198,25 @@ fn main() {
         CsvOutput {
             filename: detail_file,
         }
-        .output(&info_vec)
+        .output(info_vec.commit_info_vec.clone())
         .expect("detail csv output failed");
     }
 
     info_vec.filter_by_date(args.since, args.until);
+
+    info_vec.sum_insertions_deletions_by_branch_and_author();
+
     match OutputType::from_str(args.format.as_str()).expect("output not match") {
         OutputType::CSV => {
             CsvOutput {
                 filename: "report.csv".to_string(),
             }
-            .output(&info_vec)
+            .output(info_vec.sum_vec)
             .expect("csv output failed");
         }
         OutputType::TABLE => {
             TableOutput {}
-                .output(&info_vec)
+                .output(info_vec.sum_vec)
                 .expect("table output failed");
         }
     }

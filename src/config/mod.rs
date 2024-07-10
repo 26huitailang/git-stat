@@ -3,7 +3,6 @@ use std::fs::File;
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
-    pub output: String,
     pub repos: Vec<Repo>,
 }
 
@@ -34,7 +33,13 @@ impl Config {
 // 为Struct实现一个方法
 impl Repo {
     pub fn repo_name(&self) -> &str {
-        self.url.split("/").last().unwrap().split(".").nth(0).unwrap()
+        self.url
+            .split("/")
+            .last()
+            .unwrap()
+            .split(".")
+            .nth(0)
+            .unwrap()
     }
     pub fn get_authors(&self) -> Vec<String> {
         let mut authors = Vec::new();
@@ -64,8 +69,7 @@ mod tests {
     use super::*;
     #[test]
     fn test_config() {
-        let content = r##"output: csv
-repos:
+        let content = r##"repos:
   - url: https://github.com/26huitailang/yogo.git
     username:
     password:
@@ -80,7 +84,6 @@ repos:
 "##;
         let config: Config = serde_yaml::from_str(content).unwrap();
         println!("{:?}", config);
-        assert_eq!(config.output, "csv");
         assert_eq!(
             config.repos[0].url,
             "https://github.com/26huitailang/yogo.git"

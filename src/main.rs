@@ -1,10 +1,13 @@
 use chrono::{DateTime, Local, NaiveDate};
+use clap::builder::PossibleValuesParser;
 use clap::error::ErrorFormatter;
 use clap::Parser;
 use csv::Writer;
 use fakeit::address::info;
 use git::commit::CommitInfoVec;
 use itertools::Itertools;
+use std::default;
+use std::fmt::Display;
 use std::io::Stderr;
 use std::{error::Error, fs::File, path::Path};
 mod config;
@@ -47,12 +50,12 @@ enum OutputType {
 }
 
 impl OutputType {
-    // fn as_str(&self) -> &'static str {
-    //     match self {
-    //         OutputType::CSV => "csv",
-    //         OutputType::TABLE => "table",
-    //     }
-    // }
+    fn as_str(&self) -> &'static str {
+        match self {
+            OutputType::CSV => "csv",
+            OutputType::TABLE => "table",
+        }
+    }
 
     fn from_str(s: &str) -> Option<Self> {
         match s {
@@ -73,7 +76,6 @@ struct CsvOutput {
 
 impl Output for CsvOutput {
     fn output(&self, data: &CommitInfoVec) -> Result<(), Box<dyn Error>> {
-        println!("aaaaaaaaaaaaaa {}", data.commit_info_vec.len());
         let csv_header = vec![
             "repo".to_string(),
             "date".to_string(),
@@ -132,8 +134,19 @@ impl Output for TableOutput {
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
-    /// keep detail csv file or not
-    #[arg(long = "detail")]
+    #[arg(
+        short = 'F',
+        long = "format",
+        value_parser = PossibleValuesParser::new(["csv", "table"]),
+        default_value = "csv",
+        help = "output format"
+    )]
+    format: String,
+
+    #[arg(
+        long = "detail",
+        help = "keep detail csv file or not, e.g. --detail output.csv"
+    )]
     detail: Option<String>,
 
     /// since date
@@ -192,7 +205,7 @@ fn main() {
     }
 
     info_vec.filter_by_date(args.since, args.until);
-    match OutputType::from_str(conf.output.as_str()).expect("output not match") {
+    match OutputType::from_str(args.format.as_str()).expect("output not match") {
         OutputType::CSV => {
             CsvOutput {
                 filename: "report.csv".to_string(),

@@ -12,11 +12,18 @@ repos:
   #     - "*.go"
   - url: https://gitlab.com/26huitailang/test-git-stat.git
     branches: [main, dev]
-    username:
-    password:
     authors:
       - name: 26huitailang
         alias: [ChenSJ]
     pathspec:
       - "*.md"
       - "*.go"
+  - url: https://github.com/26huitailang/git-stat.git
+    branches: [main]
+    username:
+    password:
+    authors:
+      - name: 26huitailang
+        alias: [peterChen]
+    pathspec:
+      - "*.rs"

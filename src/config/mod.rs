@@ -9,8 +9,8 @@ pub struct Config {
 #[derive(Debug, Deserialize, Clone)]
 pub struct Repo {
     pub url: String,
-    pub username: String,
-    pub password: String,
+    username: Option<String>,
+    password: Option<String>,
     pub branches: Vec<String>,
     pub authors: Vec<Author>,
     pub pathspec: Vec<String>,
@@ -40,6 +40,21 @@ impl Repo {
             .split(".")
             .nth(0)
             .unwrap()
+    }
+
+    pub fn username(&self) -> &str {
+        if self.username.is_some() {
+            return self.username.as_ref().unwrap();
+        } else {
+            return "";
+        }
+    }
+    pub fn password(&self) -> &str {
+        if self.password.is_some() {
+            return self.password.as_ref().unwrap();
+        } else {
+            return "";
+        }
     }
     pub fn get_authors(&self) -> Vec<String> {
         let mut authors = Vec::new();

@@ -14,7 +14,7 @@ fn clone_or_open_repo(
     } else {
         let mut callbacks = RemoteCallbacks::new();
         callbacks.credentials(|_url, _username_from_url, _allowed_types| {
-            Cred::userpass_plaintext(repo_conf.username.as_str(), repo_conf.password.as_str())
+            Cred::userpass_plaintext(repo_conf.username(), repo_conf.password())
         });
         // Prepare fetch options.
         let mut fo = git2::FetchOptions::new();
@@ -157,13 +157,8 @@ pub fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Er
             arg_remote: Some("origin".to_string()),
             arg_branch: Some(branch_name.to_string()),
         };
-        git::pull(
-            &args,
-            &repo,
-            repo_conf.username.as_str(),
-            repo_conf.password.as_str(),
-        )
-        .expect("git pull failed");
+        git::pull(&args, &repo, repo_conf.username(), repo_conf.password())
+            .expect("git pull failed");
         // print current branch  and commit ref
         let _ = repo.set_head(format!("refs/remotes/origin/{}", branch_name).as_str());
         repo.checkout_head(Some(

@@ -1,5 +1,5 @@
 use crate::{config, git};
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Local, TimeZone};
 use git2::{Cred, Diff, DiffOptions, RemoteCallbacks, Repository};
 use std::collections::HashMap;
 use std::error::Error;
@@ -25,10 +25,10 @@ fn clone_or_open_repo(
         builder.clone(url, into.as_ref())
     }
 }
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CommitInfo {
     pub repo_name: String,
-    pub datetime: Option<DateTime<Utc>>,
+    pub datetime: Option<DateTime<Local>>,
     pub branch: String,
     pub commit_id: String,
     pub author: String,
@@ -40,7 +40,7 @@ pub struct CommitInfo {
 impl CommitInfo {
     fn new(
         repo_name: String,
-        datetime: Option<DateTime<Utc>>,
+        datetime: Option<DateTime<Local>>,
         branch: String,
         commit_id: String,
         author: String,
@@ -68,7 +68,7 @@ impl CommitInfo {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CommitInfoVec {
     pub commit_info_vec: Vec<CommitInfo>,
     pub sum_vec: Vec<CommitInfo>,
@@ -81,6 +81,7 @@ impl CommitInfoVec {
             sum_vec: vec![],
         }
     }
+
     pub fn sum_insertions_deletions_by_branch_and_author(&mut self) {
         let mut grouped_data: HashMap<(String, String, String), (usize, usize)> = HashMap::new();
 
@@ -111,7 +112,30 @@ impl CommitInfoVec {
             })
             .collect();
     }
+
+    pub fn filter_by_date(
+        &mut self,
+        since: Option<DateTime<Local>>,
+        until: Option<DateTime<Local>>,
+    ) {
+        println!(
+            "filter_by_date before count: {}",
+            self.commit_info_vec.len()
+        );
+        self.commit_info_vec = self
+            .commit_info_vec
+            .clone()
+            .into_iter()
+            .filter(|commit_info| {
+                commit_info.datetime.is_some()
+                    && (since.is_none() || commit_info.datetime.unwrap() >= since.unwrap())
+                    && (until.is_none() || commit_info.datetime.unwrap() <= until.unwrap())
+            })
+            .collect();
+        println!("filter_by_date after count: {}", self.commit_info_vec.len());
+    }
 }
+
 pub fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Error>> {
     let url = repo_conf.url.as_str();
     let into = format!("./repos/{}", repo_conf.repo_name());
@@ -221,8 +245,7 @@ pub fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Er
 
             // 时间戳转换
             let time = commit.time().seconds();
-            // ts to datetime
-            let datetime = chrono::DateTime::from_timestamp(time, 0).unwrap();
+            let datetime = Local::timestamp_opt(&Local, time, 0).unwrap();
 
             let author = match repo_conf.map_alias_to_name(commit.author().name().clone().unwrap())
             {

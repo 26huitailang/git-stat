@@ -1,23 +1,23 @@
-output: table
+output: csv
 repos:
-  - url: https://github.com/26huitailang/yogo.git
+  # - url: https://github.com/26huitailang/yogo.git
+  #   branches: [main, dev]
+  #   username:
+  #   password:
+  #   authors:
+  #     - name: 26huitailang
+  #       alias: [peterChen]
+  #   pathspec: # !exclude 要写到前面
+  #     - "!framework"
+  #     - "!vendor"
+  #     - "*.go"
+  - url: https://gitlab.com/26huitailang/test-git-stat.git
     branches: [main, dev]
     username:
     password:
     authors:
       - name: 26huitailang
-        alias: [peterChen]
-    pathspec: # !exclude 要写到前面
-      - "!framework"
-      - "!vendor"
+        alias: [ChenSJ]
+    pathspec:
+      - "*.md"
       - "*.go"
-#   - url: https://gitlab.com/26huitailang/test-git-stat.git
-#     branches: [main, dev]
-#     username:
-#     password:
-#     authors:
-#       - name: 26huitailang
-#         alias: [ChenSJ]
-#     pathspec:
-# #      - "*.md"
-#       - "*.go"

@@ -1,6 +1,14 @@
 # git-stat
 
+## Usage
+
 working on demo ...
+
+```shell
+git-stat --since 2024-01-01 --until 2024-03-31  #统计配置中所有仓库的代码变更
+```
+
+## TODO
 
 - 克隆repo，可能有多个，放到一个目录下`./repos`
 - 指定repo分支
@@ -35,6 +43,7 @@ repos:
 ```
 
 ```shell
+git log --pretty=oneline --shortstat --since=\"$start_date\" --until=\"$end_date\" --author=\"$author\" $include $exclude
 ./git-stat -f custom.yml
 ./git-stat // .git-stat.yml
 ```

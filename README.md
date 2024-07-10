@@ -15,11 +15,11 @@ working on demo ...
     - deletions
     - message
   - 统计
-    - [ ] 作者alias聚合
-    - [ ] insertions/deletions sum
+    - 作者alias聚合
+    - insertions/deletions sum
     - [ ] 时间过滤
-    - [ ] 输出一份detail文件作为过程
-  - [x] 支持MR识别（这部分代码不应统计，如果一个commit parent_count > 1，则应该是合并commit）
+    - 输出一份detail文件作为过程
+  - 支持MR识别（这部分代码不应统计，如果一个commit parent_count > 1，则应该是合并commit）
 - output
   - csv
   - tui(ratatui)

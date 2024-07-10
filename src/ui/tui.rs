@@ -1,7 +1,7 @@
-use std::{error::Error, io};
 use data::Data;
+use std::{error::Error, io};
 
-use itertools::Itertools;
+use crate::ui::data;
 use ratatui::{
     backend::{Backend, CrosstermBackend},
     crossterm::{
@@ -20,7 +20,6 @@ use ratatui::{
 };
 use style::palette::tailwind;
 use unicode_width::UnicodeWidthStr;
-use crate::ui::data;
 
 const PALETTES: [tailwind::Palette; 4] = [
     tailwind::BLUE,
@@ -58,7 +57,6 @@ impl TableColors {
         }
     }
 }
-
 
 struct App {
     state: TableState,
@@ -123,7 +121,6 @@ impl App {
         self.colors = TableColors::new(&PALETTES[self.color_index]);
     }
 }
-
 
 pub fn run(data: Vec<Data>) -> Result<(), Box<dyn Error>> {
     // setup terminal
@@ -192,12 +189,19 @@ fn render_table(f: &mut Frame, app: &mut App, area: Rect) {
         .add_modifier(Modifier::REVERSED)
         .fg(app.colors.selected_style_fg);
 
-    let header = ["repo", "date", "branch", "author", "insertions", "deletions"]
-        .into_iter()
-        .map(Cell::from)
-        .collect::<Row>()
-        .style(header_style)
-        .height(1);
+    let header = [
+        "repo",
+        "date",
+        "branch",
+        "author",
+        "insertions",
+        "deletions",
+    ]
+    .into_iter()
+    .map(Cell::from)
+    .collect::<Row>()
+    .style(header_style)
+    .height(1);
     let rows = app.items.iter().enumerate().map(|(i, data)| {
         let color = match i % 2 {
             0 => app.colors.normal_row_color,
@@ -223,16 +227,16 @@ fn render_table(f: &mut Frame, app: &mut App, area: Rect) {
             Constraint::Min(app.longest_item_lens.5),
         ],
     )
-        .header(header)
-        .highlight_style(selected_style)
-        .highlight_symbol(Text::from(vec![
-            "".into(),
-            bar.into(),
-            bar.into(),
-            "".into(),
-        ]))
-        .bg(app.colors.buffer_bg)
-        .highlight_spacing(HighlightSpacing::Always);
+    .header(header)
+    .highlight_style(selected_style)
+    .highlight_symbol(Text::from(vec![
+        "".into(),
+        bar.into(),
+        bar.into(),
+        "".into(),
+    ]))
+    .bg(app.colors.buffer_bg)
+    .highlight_spacing(HighlightSpacing::Always);
     f.render_stateful_widget(t, area, &mut app.state);
 }
 
@@ -276,7 +280,14 @@ fn constraint_len_calculator(items: &[Data]) -> (u16, u16, u16, u16, u16, u16) {
         .unwrap_or(0);
 
     #[allow(clippy::cast_possible_truncation)]
-    (repo_len as u16, date_len as u16, branch_len as u16, author_len as u16, insertions_len as u16, deletions_len as u16)
+    (
+        repo_len as u16,
+        date_len as u16,
+        branch_len as u16,
+        author_len as u16,
+        insertions_len as u16,
+        deletions_len as u16,
+    )
 }
 
 fn render_scrollbar(f: &mut Frame, app: &mut App, area: Rect) {
@@ -329,8 +340,14 @@ mod tests {
                 deletions: "235".to_string(),
             },
         ];
-        let (longest_repo_len, longest_date_len, longest_branch_len, longest_author_len, longest_insertions_len, longest_deletions_len) =
-            crate::ui::tui::constraint_len_calculator(&test_data);
+        let (
+            longest_repo_len,
+            longest_date_len,
+            longest_branch_len,
+            longest_author_len,
+            longest_insertions_len,
+            longest_deletions_len,
+        ) = crate::ui::tui::constraint_len_calculator(&test_data);
 
         assert_eq!(15, longest_repo_len);
         assert_eq!(19, longest_date_len);

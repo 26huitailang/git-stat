@@ -1,24 +1,24 @@
+use crate::{config, git};
+use chrono::{DateTime, Utc};
+use git2::{Cred, Diff, DiffOptions, RemoteCallbacks, Repository};
 use std::collections::HashMap;
 use std::error::Error;
 use std::path::Path;
-use chrono::{DateTime, Utc};
-use git2::{Cred, Diff, DiffOptions, RemoteCallbacks, Repository};
-use crate::{config, git};
-fn clone_or_open_repo(url: &str, into: &str, repo_conf: config::Repo) -> Result<Repository, git2::Error> {
+fn clone_or_open_repo(
+    url: &str,
+    into: &str,
+    repo_conf: config::Repo,
+) -> Result<Repository, git2::Error> {
     if Path::new(into).exists() {
         Repository::open(into)
     } else {
         let mut callbacks = RemoteCallbacks::new();
-        callbacks.credentials(|_url, username_from_url, _allowed_types| {
-            Cred::userpass_plaintext(
-                repo_conf.username.as_str(),
-                repo_conf.password.as_str(),
-            )
+        callbacks.credentials(|_url, _username_from_url, _allowed_types| {
+            Cred::userpass_plaintext(repo_conf.username.as_str(), repo_conf.password.as_str())
         });
         // Prepare fetch options.
         let mut fo = git2::FetchOptions::new();
         fo.remote_callbacks(callbacks);
-
 
         let mut builder = git2::build::RepoBuilder::new();
         builder.fetch_options(fo);
@@ -63,7 +63,7 @@ impl CommitInfo {
     pub fn format_datetime(&self) -> String {
         match &self.datetime {
             None => "".to_string(),
-            Some(datetime) => { datetime.format("%Y-%m-%d %H:%M:%S").to_string() }
+            Some(datetime) => datetime.format("%Y-%m-%d %H:%M:%S").to_string(),
         }
     }
 }
@@ -75,9 +75,7 @@ pub struct CommitInfoVec {
 }
 
 impl CommitInfoVec {
-    pub fn new(
-        commit_info_vec: Vec<CommitInfo>,
-    ) -> Self {
+    pub fn new(commit_info_vec: Vec<CommitInfo>) -> Self {
         CommitInfoVec {
             commit_info_vec,
             sum_vec: vec![],
@@ -88,14 +86,19 @@ impl CommitInfoVec {
 
         // Group by branch and author, summing insertions
         for commit_info in &self.commit_info_vec {
-            let key = (commit_info.repo_name.clone(), commit_info.branch.clone(), commit_info.author.clone());
+            let key = (
+                commit_info.repo_name.clone(),
+                commit_info.branch.clone(),
+                commit_info.author.clone(),
+            );
             let (insertions, deletions) = grouped_data.entry(key.clone()).or_insert((0, 0));
             *insertions += commit_info.insertions;
             *deletions += commit_info.deletions;
         }
 
         // Convert the grouped data back into CommitInfo instances for sum_vec
-        self.sum_vec = grouped_data.into_iter()
+        self.sum_vec = grouped_data
+            .into_iter()
             .map(|((repo_name, branch, author), total_lines)| CommitInfo {
                 repo_name,
                 datetime: None,
@@ -125,29 +128,36 @@ pub fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Er
     // 切换到指定分支
     for b in &repo_conf.branches {
         let branch_name = b.as_str();
-        // TODO: 分支切换，支持远端分支切换，reset hard（force）
-        // TODO: origin is hard code
-        let remote = repo.find_remote("origin").expect("remote not found");
+        let _ = repo.find_remote("origin").expect("remote not found");
         let args = git::Args {
             arg_remote: Some("origin".to_string()),
             arg_branch: Some(branch_name.to_string()),
         };
-        git::pull(&args, &repo, repo_conf.username.as_str(), repo_conf.password.as_str()).expect("git pull failed");
+        git::pull(
+            &args,
+            &repo,
+            repo_conf.username.as_str(),
+            repo_conf.password.as_str(),
+        )
+        .expect("git pull failed");
         // print current branch  and commit ref
-        repo.set_head(format!("refs/remotes/origin/{}", branch_name).as_str());
+        let _ = repo.set_head(format!("refs/remotes/origin/{}", branch_name).as_str());
         repo.checkout_head(Some(
             git2::build::CheckoutBuilder::default()
                 // For some reason the force is required to make the working directory actually get updated
                 // I suspect we should be adding some logic to handle dirty working directory states
                 // but this is just an example so maybe not.
                 .force(),
-        )).expect("checkout failed");
+        ))
+        .expect("checkout failed");
 
-        let (object, reference) = repo.revparse_ext(repo.head().unwrap().name().unwrap()).expect("branch not found");
+        let (object, reference) = repo
+            .revparse_ext(repo.head().unwrap().name().unwrap())
+            .expect("branch not found");
         repo.checkout_tree(&object, None).expect("checkout failed");
         match reference {
             Some(gref) => {
-                repo.set_head(gref.name().unwrap());
+                let _ = repo.set_head(gref.name().unwrap());
                 println!("Checked out branch: {}", gref.name().unwrap());
             }
             None => {
@@ -157,7 +167,6 @@ pub fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Er
             }
         }
 
-        // TODO: reset hard 便于统计
         println!("branch: {}", branch_name);
         // 遍历这个branch上所有commit
         let mut rev = repo.revwalk().unwrap();
@@ -167,8 +176,9 @@ pub fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Er
         let mut diff_options = DiffOptions::new();
         // include suffix file type
         for pathspec_str in &repo_conf.pathspec {
-            // TODO 这里 !framework 没有生效
+            // warn: 这里 !framework 要写到其他类似 *.go 前面，否则不生效
             diff_options.pathspec(pathspec_str);
+            println!("pathspec set: {}", pathspec_str);
         }
         for oid in rev {
             let commit = repo.find_commit(oid.unwrap()).unwrap();
@@ -187,7 +197,7 @@ pub fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Er
             // get commit status
             // let status = commit.status().unwrap();
             let tree = commit.tree().unwrap();
-            let mut diff: Diff;
+            let diff: Diff;
 
             match commit.parent(0) {
                 Ok(parent) => {
@@ -214,10 +224,9 @@ pub fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Er
             // ts to datetime
             let datetime = chrono::DateTime::from_timestamp(time, 0).unwrap();
 
-            let author = match repo_conf.map_alias_to_name(commit.author().name().clone().unwrap()) {
-                Some(name) => {
-                    name
-                },
+            let author = match repo_conf.map_alias_to_name(commit.author().name().clone().unwrap())
+            {
+                Some(name) => name,
                 None => {
                     println!("no author name found, use author name");
                     commit.author().name().unwrap().to_string()

@@ -7,17 +7,17 @@ repos:
     authors:
       - name: 26huitailang
         alias: [peterChen]
-    pathspec:
-      - "*.go"
+    pathspec: # !exclude 要写到前面
       - "!framework"
       - "!vendor"
-  - url: https://gitlab.com/26huitailang/test-git-stat.git
-    branches: [main, dev]
-    username:
-    password:
-    authors:
-      - name: 26huitailang
-        alias: [ChenSJ]
-    pathspec:
-#      - "*.md"
       - "*.go"
+#   - url: https://gitlab.com/26huitailang/test-git-stat.git
+#     branches: [main, dev]
+#     username:
+#     password:
+#     authors:
+#       - name: 26huitailang
+#         alias: [ChenSJ]
+#     pathspec:
+# #      - "*.md"
+#       - "*.go"

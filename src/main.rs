@@ -1,13 +1,11 @@
-use std::{error::Error, fs::File, path::Path};
 use csv::Writer;
 use itertools::Itertools;
-use ratatui::widgets::{StatefulWidget};
+use std::{error::Error, fs::File, path::Path};
 
 mod config;
-mod ui;
 mod git;
+mod ui;
 
-use ui::*;
 use crate::git::commit::CommitInfo;
 use crate::ui::data::Data;
 
@@ -46,12 +44,12 @@ enum OutputType {
 }
 
 impl OutputType {
-    fn as_str(&self) -> &'static str {
-        match self {
-            OutputType::CSV => "csv",
-            OutputType::TABLE => "table",
-        }
-    }
+    // fn as_str(&self) -> &'static str {
+    //     match self {
+    //         OutputType::CSV => "csv",
+    //         OutputType::TABLE => "table",
+    //     }
+    // }
 
     fn from_str(s: &str) -> Option<Self> {
         match s {
@@ -84,7 +82,7 @@ fn csv_output(data: Vec<git::commit::CommitInfo>) -> Result<(), Box<dyn Error>> 
                 commit_info.insertions.to_string(),
                 commit_info.deletions.to_string(),
             ]
-                .to_vec(),
+            .to_vec(),
         );
     }
     write_csv(FILENAME, csv_header, csv_data)
@@ -92,15 +90,13 @@ fn csv_output(data: Vec<git::commit::CommitInfo>) -> Result<(), Box<dyn Error>> 
 
 fn vec_commit_to_data(commit_vec: Vec<git::commit::CommitInfo>) -> Vec<Data> {
     (0..commit_vec.len())
-        .map(|i| {
-            Data {
-                repo_name: commit_vec[i].repo_name.to_string(),
-                date: commit_vec[i].format_datetime(),
-                branch: commit_vec[i].branch.to_string(),
-                author: commit_vec[i].author.to_string(),
-                insertions: commit_vec[i].insertions.to_string(),
-                deletions: commit_vec[i].deletions.to_string(),
-            }
+        .map(|i| Data {
+            repo_name: commit_vec[i].repo_name.to_string(),
+            date: commit_vec[i].format_datetime(),
+            branch: commit_vec[i].branch.to_string(),
+            author: commit_vec[i].author.to_string(),
+            insertions: commit_vec[i].insertions.to_string(),
+            deletions: commit_vec[i].deletions.to_string(),
         })
         .sorted_by(|a, b| b.date.cmp(&a.date))
         .collect_vec()
@@ -115,7 +111,7 @@ fn table_output(data: Vec<git::commit::CommitInfo>) -> Result<(), Box<dyn Error>
 
 fn main() {
     let conf = config::Config::new(".git-stat.yml");
-    let mut repo_data: Vec<CommitInfo> = vec!();
+    let mut repo_data: Vec<CommitInfo> = vec![];
     for repo in conf.repos {
         let data = git::commit::repo_parse(repo).unwrap();
         repo_data.extend(data);

@@ -1,14 +1,9 @@
 use chrono::{DateTime, Local, NaiveDate};
 use clap::builder::PossibleValuesParser;
-use clap::error::ErrorFormatter;
 use clap::Parser;
 use csv::Writer;
-use fakeit::address::info;
 use git::commit::CommitInfoVec;
 use itertools::Itertools;
-use std::default;
-use std::fmt::Display;
-use std::io::Stderr;
 use std::{error::Error, fs::File, path::Path};
 mod config;
 mod git;
@@ -50,12 +45,12 @@ enum OutputType {
 }
 
 impl OutputType {
-    fn as_str(&self) -> &'static str {
-        match self {
-            OutputType::CSV => "csv",
-            OutputType::TABLE => "table",
-        }
-    }
+    // fn as_str(&self) -> &'static str {
+    //     match self {
+    //         OutputType::CSV => "csv",
+    //         OutputType::TABLE => "table",
+    //     }
+    // }
 
     fn from_str(s: &str) -> Option<Self> {
         match s {

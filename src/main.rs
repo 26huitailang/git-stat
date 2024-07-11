@@ -177,6 +177,15 @@ fn parse_date(s: &str, hms_opt: [u32; 3]) -> Result<DateTime<Local>, Box<std::io
     Ok(d.unwrap().and_local_timezone(Local).unwrap())
 }
 
+fn get_output(output_type: OutputType) -> Box<dyn Output> {
+    match output_type {
+        OutputType::TABLE => Box::new(TableOutput {}),
+        OutputType::CSV => Box::new(CsvOutput {
+            filename: "report.csv".to_string(),
+        }),
+    }
+}
+
 fn main() {
     let args = Args::parse();
     let conf = config::Config::new(".git-stat.yml");
@@ -201,18 +210,7 @@ fn main() {
 
     info_vec.sum_insertions_deletions_by_branch_and_author();
 
-    match OutputType::from_str(args.format.as_str()).expect("output not match") {
-        OutputType::CSV => {
-            CsvOutput {
-                filename: "report.csv".to_string(),
-            }
-            .output(info_vec.sum_vec)
-            .expect("csv output failed");
-        }
-        OutputType::TABLE => {
-            TableOutput {}
-                .output(info_vec.sum_vec)
-                .expect("table output failed");
-        }
-    }
+    get_output(OutputType::from_str(args.format.as_str()).unwrap())
+        .output(info_vec.sum_vec)
+        .expect("output failed");
 }

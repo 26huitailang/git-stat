@@ -21,7 +21,9 @@ jobs:
           override: true
       - name: test
         run: cargo test
+
   build-linux:
+    needs: [test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -40,6 +42,7 @@ jobs:
           path: target/release/git-stat
 
   build-macos:
+    needs: [test]
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -58,6 +61,7 @@ jobs:
           path: target/release/git-stat
 
   build-windows:
+    needs: [test]
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4

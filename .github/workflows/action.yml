@@ -25,7 +25,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: linux-build
-          path: target/release/*
+          path: target/release/git-stat
 
   build-macos:
     runs-on: macos-latest
@@ -43,7 +43,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: macos-build
-          path: target/release/*
+          path: target/release/git-stat
 
   build-windows:
     runs-on: windows-latest
@@ -61,4 +61,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: windows-build
-          path: target/release/*
+          path: target/release/git-stat

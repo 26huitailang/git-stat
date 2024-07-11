@@ -6,6 +6,9 @@ edition = "2021"
 [[example]]
 name = "args"
 
+[[example]]
+name = "polars"
+
 [dependencies]
 git2 = "0.19.0"
 regex = "1.5"
@@ -18,3 +21,4 @@ itertools = "0.13.0"
 fakeit = "1.2.0"
 unicode-width = "0.1.13"
 clap = { version = "4.5.8", features = ["derive"] }
+polars = { version = "0.41.3", features = ["lazy"] }

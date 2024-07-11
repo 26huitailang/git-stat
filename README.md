@@ -8,6 +8,21 @@ working on demo ...
 git-stat --format table --since 2024-01-01 --until 2024-03-31  #统计配置中所有仓库的代码变更
 ```
 
+
+```mermaid
+flowchart TD
+
+Start --> use-detail{use detail.csv} --> |Y|detail.csv
+use-detail --> |N|config
+Start --> config{.git-stat.yml}
+config --> |Y|parse --> R1(repos) --> R2(commit collect) --> R1
+R2 --> conf-detail{detail} --> |Y|detail.csv --> |N|summary
+config --> |N|generate --> config
+
+summary --> Stop
+
+```
+
 ## TODO
 
 - 克隆repo，可能有多个，放到一个目录下`./repos`
@@ -15,6 +30,7 @@ git-stat --format table --since 2024-01-01 --until 2024-03-31  #统计配置中�
 - 统计所有commit信息
   - 路径过滤支持(pathspec fnmatch语法)
   - 单个commit：
+    - repo_name
     - datetime
     - branch
     - commit_id
@@ -28,6 +44,7 @@ git-stat --format table --since 2024-01-01 --until 2024-03-31  #统计配置中�
     - 时间过滤
     - 输出一份detail文件作为过程
   - 支持MR识别（这部分代码不应统计，如果一个commit parent_count > 1，则应该是合并commit）
+  - [ ] polars 加载和计算detail.csv：交互式的，下面展示结果，上面input输入信息
 - output
   - csv
   - tui(ratatui)

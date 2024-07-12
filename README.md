@@ -12,15 +12,15 @@ git-stat --format table --since 2024-01-01 --until 2024-03-31  #统计配置中�
 ```mermaid
 flowchart TD
 
-Start --> use-detail{use detail.csv} --> |Y|detail.csv
-use-detail --> |N|config
+Start --> source{source detail.csv?} --> |Y|detail.csv
+source --> |N|config
 Start --> config{.git-stat.yml}
 config --> |Y|parse --> R1(repos) --> R2(commit collect) --> R1
-R2 --> conf-detail{detail} --> |Y|detail.csv --> |N|summary
-config --> |N|generate --> config
-
-summary --> Stop
-
+R2 --> commit-list(commit info) --> detail.csv --> polars
+config --> |N|generate? --> config
+polars(polars calc) --> sqlparse? --> summary --> output --> |csv|csv
+output --> |table|tui
+output --> |polar|tui
 ```
 
 ## TODO

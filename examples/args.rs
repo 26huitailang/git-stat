@@ -24,7 +24,6 @@ fn parse_until(s: &str) -> Result<DateTime<Local>, Box<std::io::Error>> {
 }
 
 fn parse_date(s: &str, hms_opt: [u32; 3]) -> Result<DateTime<Local>, Box<std::io::Error>> {
-    println!("{}", s);
     let date = match NaiveDate::parse_from_str(s, "%Y-%m-%d") {
         Ok(d) => {
             println!("since: {}", d);

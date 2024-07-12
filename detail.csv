@@ -1,0 +1,51 @@
+repo,date,branch,commit_id,author,message,insertions,deletions
+test-git-stat,2024-07-08 15:13:57,main,da36c262c2a69cfdf4e68dc1474399702f017578,26huitailang,"test
+",2,2
+test-git-stat,2024-07-05 17:54:25,main,be984a300cb6346508b8229d0a869eb2432fabdc,26huitailang,Add new file,5,0
+test-git-stat,2024-07-05 17:51:47,main,c5fdfec77b305adb4ed3aff4f0dde8d543883499,26huitailang,Initial commit,93,0
+test-git-stat,2024-07-05 17:54:25,dev,be984a300cb6346508b8229d0a869eb2432fabdc,26huitailang,Add new file,5,0
+test-git-stat,2024-07-05 17:51:47,dev,c5fdfec77b305adb4ed3aff4f0dde8d543883499,26huitailang,Initial commit,93,0
+git-stat,2024-07-10 17:18:01,main,eb74a87f4cb7b67bdc2beae94d25dc52146ce1a5,26huitailang,"fix: username/password optional
+",20,10
+git-stat,2024-07-10 17:10:21,main,ef9c4558ee5bbe9aed8563ea0acc77aea48561a6,26huitailang,"feat: output -F option support
+",31,15
+git-stat,2024-07-10 16:54:40,main,5804fc7b165455f804e9f44ff7f5bdfcaf02a284,26huitailang,"feat: date filter
+",186,45
+git-stat,2024-07-10 13:52:42,main,47b35883d5ffa656b7a6fcbc21e50e7ea377147a,26huitailang,"feat: clap --detail option
+",21,5
+git-stat,2024-07-10 11:29:52,main,6652100f31f9e2485730ef64ca0008923919bf20,26huitailang,"chore: cargo check fix
+",117,88
+git-stat,2024-07-09 19:20:08,main,3fcbd3fbc108d1d9d0ea6f46389901e5c3394545,26huitailang,"feat: display repo_name
+",57,30
+git-stat,2024-07-09 17:29:55,main,129173b05506e93bd7a2b0511206c58a1331e692,26huitailang,"feat: author.alias mapped to author.name
+",25,3
+git-stat,2024-07-09 17:05:01,main,cadd1c0353a917273ec51ac584d9c640c2365e25,26huitailang,"refactor: committer -> author
+",25,25
+git-stat,2024-07-08 18:49:06,main,7c59285e013230181aa957b03c23095f0016a6c9,26huitailang,"refactor: move mod
+",625,630
+git-stat,2024-07-08 18:05:58,main,060d0407e9bdbe2ae754b1ef200067560348be89,26huitailang,"fix: Cred callbacks support
+",50,17
+git-stat,2024-07-08 17:06:32,main,1229d2ab65df0db39b5eacb686fa1bb1756c1c12,26huitailang,"fix: solve first commit diff/solve MR commit skip
+",24,13
+git-stat,2024-07-08 15:09:14,main,57514643fbaf22d1f5fe9e580641e2c63d5fdde1,26huitailang,"feat: sum insertions/deletions by committer and branch
+",234,8
+git-stat,2024-07-05 14:40:15,main,5d21b9220fa8cac67f0f0d988fac21383535f9de,26huitailang,"feat: sum insertions/deletions by committer and branch
+",58,8
+git-stat,2024-07-05 10:37:31,main,18c5b4b8e1a32f4ac42accc679d9224c0d308281,26huitailang,"feat: tui table output
+",496,34
+git-stat,2024-07-03 15:19:33,main,45ce44f2dbe70368d3d15f5896b3c111a44597b3,26huitailang,"feat: output csv with yaml config
+",182,122
+git-stat,2024-07-01 18:42:53,main,8a040b4c47652f29ba309166f381a96dd669f792,26huitailang,"feat: config ymal parse
+",68,16
+git-stat,2024-06-28 15:41:20,main,24cfc0f5680f4068848f414d329fd518c44c63d5,26huitailang,"feat: support diff pathspec
+",13,3
+git-stat,2024-06-28 14:42:19,main,a047123ccba406f74c245386d0d3688b7dc840eb,26huitailang,"feat: write csv
+",64,2
+git-stat,2024-06-28 11:23:13,main,b28dac65781513234f943074633407d67e4dba54,26huitailang,"fix import
+",1,1
+git-stat,2024-06-28 11:11:12,main,c4cf91087f7805d21599759565ae0c781dbc0aba,26huitailang,"feat: println commit diff(inserted deleted author)
+",23,3
+git-stat,2024-06-27 19:00:41,main,f4c8d45a80601a041f24ddc001bbf96a1a308ed5,26huitailang,"feat: clone and branch
+",13,12
+git-stat,2024-06-27 18:21:28,main,0073dfec581e63aa0b29d5494e35616849272180,26huitailang,"init
+",36,0

@@ -243,7 +243,7 @@ fn render_table(f: &mut Frame, app: &mut App, area: Rect) {
 fn constraint_len_calculator(items: &[Data]) -> (u16, u16, u16, u16, u16, u16) {
     let repo_len = items
         .iter()
-        .map(Data::repo_name)
+        .map(Data::repo)
         .map(UnicodeWidthStr::width)
         .max()
         .unwrap_or(0);
@@ -324,7 +324,7 @@ mod tests {
     fn constraint_len_calculator() {
         let test_data = vec![
             Data {
-                repo_name: "test-git-stats".to_string(),
+                repo: "test-git-stats".to_string(),
                 date: "2024-07-05 10:17:01".to_string(),
                 branch: "main".to_string(),
                 author: "Peter".to_string(),
@@ -332,7 +332,7 @@ mod tests {
                 deletions: "123".to_string(),
             },
             Data {
-                repo_name: "test-git-stats2".to_string(),
+                repo: "test-git-stats2".to_string(),
                 date: "2024-06-07 10:17:01".to_string(),
                 branch: "dev".to_string(),
                 author: "26huitailang".to_string(),

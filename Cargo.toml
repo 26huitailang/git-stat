@@ -12,13 +12,14 @@ name = "polars"
 [dependencies]
 git2 = "0.19.0"
 regex = "1.5"
-chrono = "0.4.38"
+chrono = { version = "0.4.38", features = ["serde"] }
 csv = "1.1.6"
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9.13"
+serde_json = "1.0.120"
 ratatui = "0.27.0"
 itertools = "0.13.0"
 fakeit = "1.2.0"
 unicode-width = "0.1.13"
 clap = { version = "4.5.8", features = ["derive"] }
-polars = { version = "0.41.3", features = ["lazy"] }
+polars = { version = "0.41.3", features = ["lazy", "json"] }

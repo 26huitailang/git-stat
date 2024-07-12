@@ -1,6 +1,8 @@
 use crate::{config, git};
-use chrono::{DateTime, Local, TimeZone};
+use chrono::Utc;
+use chrono::{serde::ts_seconds, DateTime, Local, TimeZone};
 use git2::{Cred, Diff, DiffOptions, RemoteCallbacks, Repository};
+use serde::{Serialize, Serializer};
 use std::collections::HashMap;
 use std::error::Error;
 use std::path::Path;
@@ -25,10 +27,28 @@ fn clone_or_open_repo(
         builder.clone(url, into.as_ref())
     }
 }
-#[derive(Debug, Clone)]
+
+pub fn serialize_dt<S>(dt: &Option<DateTime<Local>>, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    match dt {
+        Some(dt) => {
+            let dt_utc = dt.with_timezone(&Utc);
+            ts_seconds::serialize(&dt_utc, serializer)
+        }
+        _ => unreachable!(),
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
 pub struct CommitInfo {
-    pub repo_name: String,
-    pub datetime: Option<DateTime<Local>>,
+    pub repo: String,
+    #[serde(
+        serialize_with = "serialize_dt",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub date: Option<DateTime<Local>>,
     pub branch: String,
     pub commit_id: String,
     pub author: String,
@@ -39,8 +59,8 @@ pub struct CommitInfo {
 
 impl CommitInfo {
     fn new(
-        repo_name: String,
-        datetime: Option<DateTime<Local>>,
+        repo: String,
+        date: Option<DateTime<Local>>,
         branch: String,
         commit_id: String,
         author: String,
@@ -49,8 +69,8 @@ impl CommitInfo {
         deletions: usize,
     ) -> Self {
         CommitInfo {
-            repo_name,
-            datetime,
+            repo,
+            date,
             branch,
             commit_id,
             author,
@@ -61,7 +81,7 @@ impl CommitInfo {
     }
 
     pub fn format_datetime(&self) -> String {
-        match &self.datetime {
+        match &self.date {
             None => "".to_string(),
             Some(datetime) => datetime.format("%Y-%m-%d %H:%M:%S").to_string(),
         }
@@ -80,59 +100,6 @@ impl CommitInfoVec {
             commit_info_vec,
             sum_vec: vec![],
         }
-    }
-
-    pub fn sum_insertions_deletions_by_branch_and_author(&mut self) {
-        let mut grouped_data: HashMap<(String, String, String), (usize, usize)> = HashMap::new();
-
-        // Group by branch and author, summing insertions
-        for commit_info in &self.commit_info_vec {
-            let key = (
-                commit_info.repo_name.clone(),
-                commit_info.branch.clone(),
-                commit_info.author.clone(),
-            );
-            let (insertions, deletions) = grouped_data.entry(key.clone()).or_insert((0, 0));
-            *insertions += commit_info.insertions;
-            *deletions += commit_info.deletions;
-        }
-
-        // Convert the grouped data back into CommitInfo instances for sum_vec
-        self.sum_vec = grouped_data
-            .into_iter()
-            .map(|((repo_name, branch, author), total_lines)| CommitInfo {
-                repo_name,
-                datetime: None,
-                branch: branch.clone(),
-                commit_id: "".to_string(),
-                author,
-                message: format!("Total lines: +{} -{}", total_lines.0, total_lines.1),
-                insertions: total_lines.0,
-                deletions: total_lines.1, // Assuming we're not tracking total deletions in this context
-            })
-            .collect();
-    }
-
-    pub fn filter_by_date(
-        &mut self,
-        since: Option<DateTime<Local>>,
-        until: Option<DateTime<Local>>,
-    ) {
-        println!(
-            "filter_by_date before count: {}",
-            self.commit_info_vec.len()
-        );
-        self.commit_info_vec = self
-            .commit_info_vec
-            .clone()
-            .into_iter()
-            .filter(|commit_info| {
-                commit_info.datetime.is_some()
-                    && (since.is_none() || commit_info.datetime.unwrap() >= since.unwrap())
-                    && (until.is_none() || commit_info.datetime.unwrap() <= until.unwrap())
-            })
-            .collect();
-        println!("filter_by_date after count: {}", self.commit_info_vec.len());
     }
 }
 

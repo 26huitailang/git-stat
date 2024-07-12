@@ -101,33 +101,6 @@ impl Output for CsvOutput {
         let mut file = std::fs::File::create(&self.filename).unwrap();
         let mut m_df = self.df.clone();
         Ok(CsvWriter::new(&mut file).finish(&mut m_df).unwrap())
-        // let csv_header = vec![
-        //     "repo".to_string(),
-        //     "date".to_string(),
-        //     "branch".to_string(),
-        //     "commit_id".to_string(),
-        //     "author".to_string(),
-        //     "message".to_string(),
-        //     "insertions".to_string(),
-        //     "deletions".to_string(),
-        // ];
-        // let mut csv_data: Vec<Vec<String>> = Vec::new();
-        // for commit_info in &self.data {
-        //     csv_data.push(
-        //         [
-        //             commit_info.repo_name.to_string(),
-        //             commit_info.format_datetime(),
-        //             commit_info.branch.to_string(),
-        //             commit_info.commit_id.to_string(),
-        //             commit_info.author.to_string(),
-        //             commit_info.message.to_string(),
-        //             commit_info.insertions.to_string(),
-        //             commit_info.deletions.to_string(),
-        //         ]
-        //         .to_vec(),
-        //     );
-        // }
-        // write_csv(&self.filename, csv_header, csv_data)
     }
 }
 
@@ -208,18 +181,19 @@ struct Args {
 }
 
 fn parse_since(s: &str) -> Result<DateTime<Local>, Box<std::io::Error>> {
-    parse_date(s, [0, 0, 0])
+    let since = parse_date(s, [0, 0, 0]).unwrap();
+    println!("since: {}", since);
+    Ok(since)
 }
 fn parse_until(s: &str) -> Result<DateTime<Local>, Box<std::io::Error>> {
-    parse_date(s, [23, 59, 59])
+    let until = parse_date(s, [23, 59, 59]).unwrap();
+    println!("until: {}", until);
+    Ok(until)
 }
 
 fn parse_date(s: &str, hms_opt: [u32; 3]) -> Result<DateTime<Local>, Box<std::io::Error>> {
     let date = match NaiveDate::parse_from_str(s, "%Y-%m-%d") {
-        Ok(d) => {
-            println!("since: {}", d);
-            d
-        }
+        Ok(d) => d,
         Err(e) => {
             println!("{}", e);
             return Err(Box::new(std::io::Error::new(
@@ -304,8 +278,7 @@ fn main() {
                 let data = git::commit::repo_parse(repo).unwrap();
                 repo_data.extend(data);
             }
-            let json_str = serde_json::to_string(&repo_data).unwrap();
-            let file = std::io::Cursor::new(json_str);
+            let file = CommitInfoVec::new(repo_data).file_cursor().unwrap();
             CsvReadOptions::default()
                 .with_has_header(true)
                 .map_parse_options(|s| s.with_try_parse_dates(true))
@@ -314,8 +287,8 @@ fn main() {
                 .unwrap()
         }
     };
+
     // TODO: use polar csv writer save raw data
-    let mut info_vec = CommitInfoVec::new(repo_data);
     if args.detail.is_some() {
         let detail_file = args.detail.clone().unwrap_or("detail.csv".to_string());
         println!("detail csv file: {}", detail_file);

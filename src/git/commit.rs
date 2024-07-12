@@ -1,10 +1,9 @@
 use crate::{config, git};
-use chrono::Utc;
-use chrono::{serde::ts_seconds, DateTime, Local, TimeZone};
+use chrono::{DateTime, Local, TimeZone};
 use git2::{Cred, Diff, DiffOptions, RemoteCallbacks, Repository};
 use serde::{Serialize, Serializer};
-use std::collections::HashMap;
 use std::error::Error;
+use std::io::{Cursor, Write};
 use std::path::Path;
 fn clone_or_open_repo(
     url: &str,
@@ -34,10 +33,13 @@ where
 {
     match dt {
         Some(dt) => {
-            let dt_utc = dt.with_timezone(&Utc);
-            ts_seconds::serialize(&dt_utc, serializer)
+            let s = dt.format("%Y-%m-%d %H:%M:%S").to_string();
+            serializer.serialize_str(s.as_str())
         }
-        _ => unreachable!(),
+        None => {
+            let s = "".to_string();
+            serializer.serialize_str(&s)
+        }
     }
 }
 
@@ -91,15 +93,43 @@ impl CommitInfo {
 #[derive(Debug, Clone)]
 pub struct CommitInfoVec {
     pub commit_info_vec: Vec<CommitInfo>,
-    pub sum_vec: Vec<CommitInfo>,
 }
 
 impl CommitInfoVec {
     pub fn new(commit_info_vec: Vec<CommitInfo>) -> Self {
-        CommitInfoVec {
-            commit_info_vec,
-            sum_vec: vec![],
+        CommitInfoVec { commit_info_vec }
+    }
+
+    pub fn file_cursor(&self) -> Result<Cursor<Vec<u8>>, std::io::Error> {
+        let mut w = csv::Writer::from_writer(Cursor::new(Vec::new()));
+        w.write_record(&[
+            "repo".to_string(),
+            "date".to_string(),
+            "branch".to_string(),
+            "commit_id".to_string(),
+            "author".to_string(),
+            "message".to_string(),
+            "insertions".to_string(),
+            "deletions".to_string(),
+        ])
+        .unwrap();
+
+        for commit_info in &self.commit_info_vec {
+            w.write_record(&[
+                commit_info.repo.to_string(),
+                commit_info.format_datetime(),
+                commit_info.branch.to_string(),
+                commit_info.commit_id.to_string(),
+                commit_info.author.to_string(),
+                commit_info.message.to_string(),
+                commit_info.insertions.to_string(),
+                commit_info.deletions.to_string(),
+            ])
+            .unwrap();
         }
+        let mut cursor = w.into_inner().unwrap();
+        cursor.flush()?;
+        Ok(cursor)
     }
 }
 

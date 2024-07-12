@@ -1,5 +1,5 @@
 use chrono::{DateTime, Local, NaiveDate};
-use clap::builder::PossibleValuesParser;
+use clap::builder::{FalseyValueParser, PossibleValuesParser};
 use clap::Parser;
 use csv::Writer;
 use git::commit::CommitInfoVec;
@@ -168,6 +168,9 @@ struct Args {
     )]
     detail: Option<String>,
 
+    #[arg(long = "no-detail", action=clap::ArgAction::SetTrue)]
+    no_detail: bool,
+
     #[arg(long = "source", help = "do not parse repo again, use SOURCE directly")]
     source: Option<String>,
 
@@ -289,7 +292,7 @@ fn main() {
     };
 
     // TODO: use polar csv writer save raw data
-    if args.detail.is_some() {
+    if !args.no_detail {
         let detail_file = args.detail.clone().unwrap_or("detail.csv".to_string());
         println!("detail csv file: {}", detail_file);
         CsvOutput::new(detail_file, df.clone())

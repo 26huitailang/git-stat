@@ -1,9 +1,10 @@
 use chrono::{DateTime, Local, NaiveDate};
-use clap::builder::{FalseyValueParser, PossibleValuesParser};
+use clap::builder::PossibleValuesParser;
 use clap::Parser;
 use csv::Writer;
 use git::commit::CommitInfoVec;
-use itertools::Itertools;
+use std::sync::mpsc;
+use std::thread;
 use std::{error::Error, fs::File, path::Path};
 mod config;
 mod git;
@@ -104,20 +105,6 @@ impl Output for CsvOutput {
     }
 }
 
-fn vec_commit_to_data(commit_vec: Vec<git::commit::CommitInfo>) -> Vec<Data> {
-    (0..commit_vec.len())
-        .map(|i| Data {
-            repo: commit_vec[i].repo.to_string(),
-            date: commit_vec[i].format_datetime(),
-            branch: commit_vec[i].branch.to_string(),
-            author: commit_vec[i].author.to_string(),
-            insertions: commit_vec[i].insertions.to_string(),
-            deletions: commit_vec[i].deletions.to_string(),
-        })
-        .sorted_by(|a, b| b.date.cmp(&a.date))
-        .collect_vec()
-}
-
 struct TableOutput {
     df: DataFrame,
 }
@@ -168,7 +155,7 @@ struct Args {
     )]
     detail: Option<String>,
 
-    #[arg(long = "no-detail", action=clap::ArgAction::SetTrue)]
+    #[arg(long = "no-detail", action=clap::ArgAction::SetTrue, help="do not keep detail csv file, ignore --detail if this is set")]
     no_detail: bool,
 
     #[arg(long = "source", help = "do not parse repo again, use SOURCE directly")]
@@ -181,6 +168,9 @@ struct Args {
     /// until date
     #[arg(long = "until", value_parser = parse_until, help = "since date, 2024-03-31")]
     until: Option<DateTime<Local>>,
+
+    #[arg(long = "force-update", action=clap::ArgAction::SetTrue, help="pull from remote repo")]
+    update: bool,
 }
 
 fn parse_since(s: &str) -> Result<DateTime<Local>, Box<std::io::Error>> {
@@ -272,15 +262,35 @@ fn main() {
     let args = Args::parse();
     let conf = config::Config::new(".git-stat.yml");
     let mut repo_data: Vec<CommitInfo> = vec![];
-    // TODO: if --source detail.csv 指定了，则从 detail.csv 中读取数据
+    // if --source detail.csv 指定了，则从 detail.csv 中读取数据
     // 否则从配置文件分析获取
     let df = match args.source {
         Some(source) => load_df_from_csv(source),
         None => {
+            let (tx, rx) = mpsc::channel();
+            let mut handlers = vec![];
+
             for repo in conf.repos {
-                let data = git::commit::repo_parse(repo).unwrap();
-                repo_data.extend(data);
+                let t_sender = tx.clone();
+                let t = thread::spawn(move || {
+                    let repo_name = repo.repo_name();
+                    let data = git::commit::repo_parse(&repo, args.update).unwrap();
+                    t_sender.send(data).unwrap();
+                    println!("repo parse done {}", repo_name);
+                });
+                handlers.push(t);
             }
+            for h in handlers {
+                h.join().unwrap();
+            }
+            drop(tx);
+            println!("start to collect data");
+            while let Ok(received) = rx.recv() {
+                println!("aaa {}", received.len());
+                repo_data.extend(received);
+            }
+            println!("collect data done");
+
             let file = CommitInfoVec::new(repo_data).file_cursor().unwrap();
             CsvReadOptions::default()
                 .with_has_header(true)
@@ -291,7 +301,6 @@ fn main() {
         }
     };
 
-    // TODO: use polar csv writer save raw data
     if !args.no_detail {
         let detail_file = args.detail.clone().unwrap_or("detail.csv".to_string());
         println!("detail csv file: {}", detail_file);
@@ -299,13 +308,9 @@ fn main() {
             .output()
             .expect("detail csv output failed");
     }
-    // TODO summary
+    // summary by polars
     let my_df = MyDataFrame::new(df);
     let summ = my_df.summary(args.since, args.until);
-
-    // TODO df -> 格式转换如何实现，csv/table等需要的格式
-
-    // TODO: 计算都用polars实现
 
     let out_type = OutputType::from_str(args.format.as_str()).unwrap();
     get_output(out_type, summ).output().expect("output failed");

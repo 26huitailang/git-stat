@@ -133,7 +133,10 @@ impl CommitInfoVec {
     }
 }
 
-pub fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Error>> {
+pub fn repo_parse(
+    repo_conf: &config::Repo,
+    update: bool,
+) -> Result<Vec<CommitInfo>, Box<dyn Error>> {
     let url = repo_conf.url.as_str();
     let into = format!("./repos/{}", repo_conf.repo_name());
 
@@ -154,8 +157,11 @@ pub fn repo_parse(repo_conf: config::Repo) -> Result<Vec<CommitInfo>, Box<dyn Er
             arg_remote: Some("origin".to_string()),
             arg_branch: Some(branch_name.to_string()),
         };
-        git::pull(&args, &repo, repo_conf.username(), repo_conf.password())
-            .expect("git pull failed");
+
+        if update {
+            git::pull(&args, &repo, repo_conf.username(), repo_conf.password())
+                .expect("git pull failed");
+        }
         // print current branch  and commit ref
         let _ = repo.set_head(format!("refs/remotes/origin/{}", branch_name).as_str());
         repo.checkout_head(Some(

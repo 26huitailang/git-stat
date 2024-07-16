@@ -8,7 +8,6 @@ working on demo ...
 git-stat --format table --since 2024-01-01 --until 2024-03-31  #统计配置中所有仓库的代码变更
 ```
 
-
 ```mermaid
 flowchart TD
 
@@ -23,8 +22,9 @@ output --> |table|tui
 output --> |polar|tui
 ```
 
-## TODO
+## features
 
+- 并行计算统计
 - 克隆repo，可能有多个，放到一个目录下`./repos`
 - 指定repo分支
 - 统计所有commit信息
@@ -50,20 +50,6 @@ output --> |polar|tui
   - tui(ratatui)
     - table
     - [ ] graph
-
-```yml
-output: [csv, ui]
-repos:
-  - url: https://github.com/xxx/xxx.git
-    branchs: [master, dev]
-    authors: [xxx, xxx]
-```
-
-```shell
-git log --pretty=oneline --shortstat --since=\"$start_date\" --until=\"$end_date\" --author=\"$author\" $include $exclude
-./git-stat -f custom.yml
-./git-stat // .git-stat.yml
-```
 
 ## 交叉编译
 

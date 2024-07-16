@@ -1,5 +1,6 @@
 use chrono::{DateTime, Local, NaiveDate};
 use clap::Parser;
+use log::info;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -26,11 +27,11 @@ fn parse_until(s: &str) -> Result<DateTime<Local>, Box<std::io::Error>> {
 fn parse_date(s: &str, hms_opt: [u32; 3]) -> Result<DateTime<Local>, Box<std::io::Error>> {
     let date = match NaiveDate::parse_from_str(s, "%Y-%m-%d") {
         Ok(d) => {
-            println!("since: {}", d);
+            info!("since: {}", d);
             d
         }
         Err(e) => {
-            println!("{}", e);
+            info!("{}", e);
             return Err(Box::new(std::io::Error::new(
                 std::io::ErrorKind::InvalidData,
                 "Invalid date format",

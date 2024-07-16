@@ -1,6 +1,7 @@
 use crate::{config, git};
 use chrono::{DateTime, Local, TimeZone};
 use git2::{Cred, Diff, DiffOptions, RemoteCallbacks, Repository};
+use log::{debug, info, trace};
 use serde::{Serialize, Serializer};
 use std::error::Error;
 use std::io::{Cursor, Write};
@@ -145,7 +146,7 @@ pub fn repo_parse(
         Err(e) => panic!("Failed to clone repository: {}", e),
     };
 
-    println!("Cloned repository to: {}", repo.path().display());
+    info!("clone/open repository: {}", repo.path().display());
 
     let mut commit_data: Vec<CommitInfo> = Vec::new();
     let author_list = repo_conf.get_authors();
@@ -180,16 +181,16 @@ pub fn repo_parse(
         match reference {
             Some(gref) => {
                 let _ = repo.set_head(gref.name().unwrap());
-                println!("Checked out branch: {}", gref.name().unwrap());
+                debug!("Checked out branch: {}", gref.name().unwrap());
             }
             None => {
-                println!("this is a commit");
+                debug!("this is a commit");
                 // 返回错误
                 return Err(Box::new(git2::Error::from_str("branch not found")));
             }
         }
 
-        println!("branch: {}", branch_name);
+        info!("branch: {}", branch_name);
         // 遍历这个branch上所有commit
         let mut rev = repo.revwalk().unwrap();
         rev.set_sorting(git2::Sort::TIME).unwrap();
@@ -200,12 +201,15 @@ pub fn repo_parse(
         for pathspec_str in &repo_conf.pathspec {
             // warn: 这里 !framework 要写到其他类似 *.go 前面，否则不生效
             diff_options.pathspec(pathspec_str);
-            println!("pathspec set: {}", pathspec_str);
+            debug!("pathspec set: {}", pathspec_str);
         }
         for oid in rev {
             let commit = repo.find_commit(oid.unwrap()).unwrap();
             if commit.parent_count() > 1 {
-                println!("commit has more than one parent, maybe merge commit, skip");
+                debug!(
+                    "commit has more than one parent, maybe merge commit, skip: {}",
+                    commit.id()
+                );
                 continue;
             }
             // commit author 不在 authors中跳过
@@ -229,7 +233,7 @@ pub fn repo_parse(
                         .unwrap();
                 }
                 Err(_) => {
-                    println!("no parent, try none diff");
+                    debug!("no parent, try none diff");
                     diff = repo
                         .diff_tree_to_tree(None, Some(&tree), Some(&mut diff_options))
                         .unwrap();
@@ -237,7 +241,7 @@ pub fn repo_parse(
             };
             let stats = diff.stats().unwrap();
             if stats.files_changed() == 0 {
-                println!("no files changed, skipppp");
+                debug!("no files changed, skip: {}", commit.id());
                 continue;
             }
 
@@ -253,7 +257,7 @@ pub fn repo_parse(
                     commit.author().name().unwrap().to_string()
                 }
             };
-            println!(
+            trace!(
                 "repo: {} commit: {} | {} | {} | {} | +{} | -{} | {}",
                 repo_conf.repo_name(),
                 datetime.format("%Y-%m-%d %H:%M:%S"),

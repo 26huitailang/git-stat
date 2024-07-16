@@ -1,3 +1,4 @@
+use log::debug;
 use serde::Deserialize;
 use std::fs::File;
 
@@ -71,7 +72,7 @@ impl Repo {
                 return Some(author.name.clone());
             }
             if author.alias.contains(&alias.to_string()) {
-                println!("alias: {} mapped to name: {}", alias, author.name);
+                debug!("alias mapped to name: {} -> {}", alias, author.name);
                 return Some(author.name.clone());
             }
         }

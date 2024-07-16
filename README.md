@@ -5,7 +5,7 @@
 working on demo ...
 
 ```shell
-git-stat --format table --since 2024-01-01 --until 2024-03-31  #统计配置中所有仓库的代码变更
+RUST_LOG=trace git-stat --format table --since 2024-01-01 --until 2024-03-31  #统计配置中所有仓库的代码变更
 ```
 
 ```mermaid

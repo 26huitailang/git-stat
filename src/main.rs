@@ -2,6 +2,7 @@ use chrono::{DateTime, Local, NaiveDate};
 use clap::builder::PossibleValuesParser;
 use clap::Parser;
 use csv::Writer;
+use env_logger::Env;
 use git::commit::CommitInfoVec;
 use std::sync::mpsc;
 use std::thread;
@@ -13,6 +14,7 @@ use polars::prelude::*;
 
 use crate::git::commit::CommitInfo;
 use crate::ui::data::Data;
+use log::{debug, error, info};
 
 /// 写入csv文件
 ///
@@ -25,7 +27,7 @@ pub fn write_csv<P: AsRef<Path>>(
     header: Vec<String>,
     data: Vec<Vec<String>>,
 ) -> Result<(), Box<dyn Error>> {
-    let file = File::create(filename).unwrap();
+    let file = File::create(&filename).unwrap();
     let mut wtr = Writer::from_writer(file);
 
     wtr.write_record(header)?;
@@ -34,11 +36,9 @@ pub fn write_csv<P: AsRef<Path>>(
         wtr.write_record(record)?;
     }
     wtr.flush()?;
-    println!("CSV file written successfully!");
+    info!("CSV file written successfully: {:?}", filename.as_ref());
 
     Ok(())
-    // let lines = data.len();
-    // println!("data has been written to {:?} {}", filename, lines);
 }
 
 enum OutputType {
@@ -175,12 +175,12 @@ struct Args {
 
 fn parse_since(s: &str) -> Result<DateTime<Local>, Box<std::io::Error>> {
     let since = parse_date(s, [0, 0, 0]).unwrap();
-    println!("since: {}", since);
+    info!("since: {}", since);
     Ok(since)
 }
 fn parse_until(s: &str) -> Result<DateTime<Local>, Box<std::io::Error>> {
     let until = parse_date(s, [23, 59, 59]).unwrap();
-    println!("until: {}", until);
+    info!("until: {}", until);
     Ok(until)
 }
 
@@ -188,7 +188,7 @@ fn parse_date(s: &str, hms_opt: [u32; 3]) -> Result<DateTime<Local>, Box<std::io
     let date = match NaiveDate::parse_from_str(s, "%Y-%m-%d") {
         Ok(d) => d,
         Err(e) => {
-            println!("{}", e);
+            error!("parse date err: {}", e);
             return Err(Box::new(std::io::Error::new(
                 std::io::ErrorKind::InvalidData,
                 "Invalid date format",
@@ -259,6 +259,8 @@ impl MyDataFrame {
 }
 
 fn main() {
+    env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
+
     let args = Args::parse();
     let conf = config::Config::new(".git-stat.yml");
     let mut repo_data: Vec<CommitInfo> = vec![];
@@ -276,7 +278,7 @@ fn main() {
                     let repo_name = repo.repo_name();
                     let data = git::commit::repo_parse(&repo, args.update).unwrap();
                     t_sender.send(data).unwrap();
-                    println!("repo parse done {}", repo_name);
+                    info!("repo parse done: {}", repo_name);
                 });
                 handlers.push(t);
             }
@@ -284,12 +286,12 @@ fn main() {
                 h.join().unwrap();
             }
             drop(tx);
-            println!("start to collect data");
+            info!("rx start to collect data");
             while let Ok(received) = rx.recv() {
-                println!("aaa {}", received.len());
+                debug!("rx received data len {}", received.len());
                 repo_data.extend(received);
             }
-            println!("collect data done");
+            info!("rx collect data done");
 
             let file = CommitInfoVec::new(repo_data).file_cursor().unwrap();
             CsvReadOptions::default()
@@ -303,7 +305,7 @@ fn main() {
 
     if !args.no_detail {
         let detail_file = args.detail.clone().unwrap_or("detail.csv".to_string());
-        println!("detail csv file: {}", detail_file);
+        info!("detail csv file: {}", detail_file);
         CsvOutput::new(detail_file, df.clone())
             .output()
             .expect("detail csv output failed");

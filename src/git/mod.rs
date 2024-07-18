@@ -2,6 +2,7 @@ pub mod commit;
 
 use clap::Parser;
 use git2::{Cred, Direction, RemoteCallbacks, Repository};
+use log::info;
 use std::io::{self, Write};
 use std::str;
 
@@ -23,13 +24,13 @@ fn do_fetch<'a>(
     // Print out our transfer progress.
     cb.transfer_progress(|stats| {
         if stats.received_objects() == stats.total_objects() {
-            print!(
+            info!(
                 "Resolving deltas {}/{}\r",
                 stats.indexed_deltas(),
                 stats.total_deltas()
             );
         } else if stats.total_objects() > 0 {
-            print!(
+            info!(
                 "Received {}/{} objects ({}) in {} bytes\r",
                 stats.received_objects(),
                 stats.total_objects(),
@@ -56,7 +57,7 @@ fn do_fetch<'a>(
     // how many objects we saved from having to cross the network.
     let stats = remote.stats();
     if stats.local_objects() > 0 {
-        println!(
+        info!(
             "\rReceived {}/{} objects in {} bytes (used {} local \
              objects)",
             stats.indexed_objects(),
@@ -65,7 +66,7 @@ fn do_fetch<'a>(
             stats.local_objects()
         );
     } else {
-        println!(
+        info!(
             "\rReceived {}/{} objects in {} bytes",
             stats.indexed_objects(),
             stats.total_objects(),

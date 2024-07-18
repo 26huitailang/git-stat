@@ -5,16 +5,16 @@
 working on demo ...
 
 ```shell
-RUST_LOG=trace git-stat --format table --since 2024-01-01 --until 2024-03-31  #统计配置中所有仓库的代码变更
+# 统计配置中所有仓库的代码变更
+RUST_LOG=trace git-stat --format table --since 2024-01-01 --until 2024-03-31
 ```
 
 ```mermaid
 flowchart TD
 
-Start --> source{source detail.csv?} --> |Y|detail.csv
-source --> |N|config
-Start --> config{.git-stat.yml}
-config --> |Y|parse --> R1(repos) --> R2(commit collect) --> R1
+Start --> source{input --source} --> |Y|detail.csv
+source --> |N|config{.git-stat.yml}
+config --> |Y|parse --> R1(repos) -->|parallel| R2(commit collect)
 R2 --> commit-list(commit info) --> detail.csv --> polars
 config --> |N|generate? --> config
 polars(polars calc) --> sqlparse? --> summary --> output --> |csv|csv
@@ -30,18 +30,18 @@ output --> |polar|tui
 - 统计所有commit信息
   - 路径过滤支持(pathspec fnmatch语法)
   - 单个commit：
-    - repo_name
-    - datetime
+    - repo
+    - date
     - branch
     - commit_id
-    - committer
+    - author
     - insertions
     - deletions
     - message
   - 统计
-    - 作者alias聚合
+    - 作者alias聚合: config authors定义
     - insertions/deletions sum
-    - 时间过滤
+    - 时间过滤: --since --until
     - 输出一份detail文件作为过程
   - 支持MR识别（这部分代码不应统计，如果一个commit parent_count > 1，则应该是合并commit）
   - [ ] polars 加载和计算detail.csv：交互式的，下面展示结果，上面input输入信息

@@ -172,7 +172,7 @@ pub fn repo_parse(
                 // but this is just an example so maybe not.
                 .force(),
         ))
-        .expect("checkout failed");
+        .expect(format!("checkout failed: {}/{}", repo_conf.repo_name(), branch_name).as_str());
 
         let (object, reference) = repo
             .revparse_ext(repo.head().unwrap().name().unwrap())
@@ -190,7 +190,7 @@ pub fn repo_parse(
             }
         }
 
-        info!("branch: {}", branch_name);
+        info!("walk branch: {}/{}", repo_conf.repo_name(), branch_name);
         // 遍历这个branch上所有commit
         let mut rev = repo.revwalk().unwrap();
         rev.set_sorting(git2::Sort::TIME).unwrap();

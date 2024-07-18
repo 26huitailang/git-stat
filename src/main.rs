@@ -4,6 +4,7 @@ use clap::Parser;
 use csv::Writer;
 use env_logger::Env;
 use git::commit::CommitInfoVec;
+use std::collections::HashMap;
 use std::sync::mpsc;
 use std::thread;
 use std::{error::Error, fs::File, path::Path};
@@ -216,28 +217,39 @@ fn load_df_from_csv(filename: String) -> DataFrame {
     csv.collect().unwrap()
 }
 
-pub struct MyDataFrame {
-    df: DataFrame,
+#[derive(Debug)]
+pub struct FilterOptions {
+    pub since: Option<DateTime<Local>>,
+    pub until: Option<DateTime<Local>>,
+    pub authors: HashMap<String, String>,
 }
 
-impl MyDataFrame {
-    pub fn new(df: DataFrame) -> Self {
-        MyDataFrame { df }
+pub struct MyDataFrame<'a> {
+    df: &'a DataFrame,
+    filter_options: &'a FilterOptions,
+}
+
+impl<'a> MyDataFrame<'a> {
+    pub fn new(df: &'a DataFrame, filter_options: &'a FilterOptions) -> Self {
+        MyDataFrame { df, filter_options }
     }
-    pub fn summary(
-        &self,
-        since: Option<DateTime<Local>>,
-        until: Option<DateTime<Local>>,
-    ) -> DataFrame {
-        let q = self.df.clone().lazy();
+    pub fn summary(&self) -> DataFrame {
+        let mut q = self.df.clone().lazy();
+        for (alias, author) in &self.filter_options.authors {
+            q = q.with_column(col("author").str().replace(
+                lit(alias.as_str()),
+                lit(author.as_str()),
+                false,
+            ));
+        }
 
         let mut filter_expr = lit(true);
 
-        if let Some(since) = since {
+        if let Some(since) = self.filter_options.since {
             let since_expr = lit(since.naive_local());
             filter_expr = filter_expr.and(col("date").gt_eq(since_expr));
         };
-        if let Some(until) = until {
+        if let Some(until) = self.filter_options.until {
             let until_expr = lit(until.naive_local());
             filter_expr = filter_expr.and(col("date").lt_eq(until_expr));
         };
@@ -311,8 +323,19 @@ fn main() {
             .expect("detail csv output failed");
     }
     // summary by polars
-    let my_df = MyDataFrame::new(df);
-    let summ = my_df.summary(args.since, args.until);
+    let filter_options = &mut FilterOptions {
+        since: args.since,
+        until: args.until,
+        authors: HashMap::new(),
+    };
+    for author in conf.authors {
+        for alias in author.alias {
+            filter_options.authors.insert(alias, author.name.clone());
+        }
+    }
+    debug!("filter options: {:?}", filter_options);
+    let my_df = MyDataFrame::new(&df, filter_options);
+    let summ = my_df.summary();
 
     let out_type = OutputType::from_str(args.format.as_str()).unwrap();
     get_output(out_type, summ).output().expect("output failed");

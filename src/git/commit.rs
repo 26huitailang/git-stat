@@ -149,7 +149,6 @@ pub fn repo_parse(
     info!("clone/open repository: {}", repo.path().display());
 
     let mut commit_data: Vec<CommitInfo> = Vec::new();
-    let author_list = repo_conf.get_authors();
     // 切换到指定分支
     for b in &repo_conf.branches {
         let branch_name = b.as_str();
@@ -212,16 +211,7 @@ pub fn repo_parse(
                 );
                 continue;
             }
-            // commit author 不在 authors中跳过
-            if !author_list.contains(&commit.author().name().unwrap().to_string()) {
-                println!(
-                    "author: {} not in authors, skip",
-                    commit.author().name().unwrap()
-                );
-                continue;
-            }
-            // get commit status
-            // let status = commit.status().unwrap();
+
             let tree = commit.tree().unwrap();
             let diff: Diff;
 
@@ -249,14 +239,15 @@ pub fn repo_parse(
             let time = commit.time().seconds();
             let datetime = Local::timestamp_opt(&Local, time, 0).unwrap();
 
-            let author = match repo_conf.map_alias_to_name(commit.author().name().clone().unwrap())
-            {
-                Some(name) => name,
-                None => {
-                    println!("no author name found, use author name");
-                    commit.author().name().unwrap().to_string()
-                }
-            };
+            let author = commit.author().name().unwrap().to_string();
+            // let author = match repo_conf.map_alias_to_name(commit.author().name().clone().unwrap())
+            // {
+            //     Some(name) => name,
+            //     None => {
+            //         println!("no author name found, use author name");
+            //         commit.author().name().unwrap().to_string()
+            //     }
+            // };
             trace!(
                 "repo: {} commit: {} | {} | {} | {} | +{} | -{} | {}",
                 repo_conf.repo_name(),

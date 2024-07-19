@@ -4,7 +4,9 @@ use clap::Parser;
 use csv::Writer;
 use env_logger::Env;
 use git::commit::CommitInfoVec;
-use std::collections::HashMap;
+use itertools::Itertools;
+use polars::lazy::dsl::GetOutput;
+use std::collections::{HashMap, HashSet};
 use std::sync::mpsc;
 use std::thread;
 use std::{error::Error, fs::File, path::Path};
@@ -235,12 +237,14 @@ impl<'a> MyDataFrame<'a> {
     }
     pub fn summary(&self) -> DataFrame {
         let mut q = self.df.clone().lazy();
+        let mut allowed_authors: HashSet<String> = HashSet::new();
         for (alias, author) in &self.filter_options.authors {
             q = q.with_column(col("author").str().replace(
                 lit(alias.as_str()),
                 lit(author.as_str()),
                 false,
             ));
+            allowed_authors.insert(author.into());
         }
 
         let mut filter_expr = lit(true);
@@ -253,6 +257,26 @@ impl<'a> MyDataFrame<'a> {
             let until_expr = lit(until.naive_local());
             filter_expr = filter_expr.and(col("date").lt_eq(until_expr));
         };
+
+        let is_valid = move |s: Series| -> Result<Option<Series>, _> {
+            let ss = s
+                .str()
+                .unwrap()
+                .into_iter()
+                .map(|s| allowed_authors.contains(s.unwrap_or("")))
+                .collect_vec();
+            let s = Series::new("is_valid", ss);
+            Ok(Some(s))
+        };
+        let o = GetOutput::from_type(DataType::Boolean);
+        q = q
+            .with_column(
+                col("author")
+                    .map(is_valid, o)
+                    .alias("is_valid")
+                    .cast(DataType::Boolean),
+            )
+            .filter(col("is_valid"));
 
         q.filter(filter_expr)
             .select(vec![

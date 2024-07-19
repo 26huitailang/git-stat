@@ -9,6 +9,9 @@ name = "args"
 [[example]]
 name = "polars"
 
+[[example]]
+name = "pd"
+
 [dependencies]
 git2 = "0.19.0"
 regex = "1.5"

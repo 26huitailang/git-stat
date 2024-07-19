@@ -1,5 +1,10 @@
 # git-stat
 
+## Introduction
+
+![polars](./docs/images/polars.png)
+![ratatui](./docs/images/tui.png)
+
 ## Usage
 
 working on demo ...

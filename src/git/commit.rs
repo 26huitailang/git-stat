@@ -1,7 +1,7 @@
 use crate::{config, git};
 use chrono::{DateTime, Local, TimeZone};
 use git2::{Cred, Diff, DiffOptions, RemoteCallbacks, Repository};
-use log::{debug, info, trace};
+use log::{debug, info, trace, warn};
 use serde::{Serialize, Serializer};
 use std::error::Error;
 use std::io::{Cursor, Write};
@@ -260,14 +260,20 @@ pub fn repo_parse(
                 commit.summary().unwrap_or(""),
             );
             // append to data
-
+            let cmt_msg = match commit.message() {
+                Some(msg) => msg.to_string(),
+                None => {
+                    warn!("no commit message found, use empty string: {}", commit.id());
+                    "".to_string()
+                }
+            };
             let commit_row = CommitInfo::new(
                 repo_conf.repo_name().to_string(),
                 datetime.into(),
                 branch_name.to_string(),
                 commit.id().to_string(),
                 author,
-                commit.message().unwrap().to_string(),
+                cmt_msg,
                 stats.insertions(),
                 stats.deletions(),
             );

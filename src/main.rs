@@ -8,8 +8,8 @@ use itertools::Itertools;
 use polars::lazy::dsl::GetOutput;
 use std::collections::{HashMap, HashSet};
 use std::sync::mpsc;
-use std::thread;
 use std::{error::Error, fs::File, path::Path};
+use std::{thread, time};
 mod config;
 mod git;
 mod ui;
@@ -312,9 +312,16 @@ fn main() {
                 let t_sender = tx.clone();
                 let t = thread::spawn(move || {
                     let repo_name = repo.repo_name();
+                    info!("repo parse start: {}", repo_name);
+                    let start = time::Instant::now();
                     let data = git::commit::repo_parse(&repo, args.update).unwrap();
                     t_sender.send(data).unwrap();
-                    info!("repo parse done: {}", repo_name);
+                    let duration = time::Instant::now().duration_since(start);
+                    info!(
+                        "repo parse done: {}, cost {}ms",
+                        repo_name,
+                        duration.as_millis()
+                    );
                 });
                 handlers.push(t);
             }

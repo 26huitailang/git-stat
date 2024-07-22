@@ -1,6 +1,7 @@
 use chrono::{DateTime, Local, NaiveDate};
 use clap::builder::PossibleValuesParser;
 use clap::Parser;
+use config::Repo;
 use csv::Writer;
 use env_logger::Env;
 use git::commit::CommitInfoVec;
@@ -294,27 +295,21 @@ impl<'a> MyDataFrame<'a> {
     }
 }
 
-fn main() {
-    env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
-
-    let args = Args::parse();
-    let conf = config::Config::new(".git-stat.yml");
+pub fn get_df(source: Option<String>, repos: Vec<Repo>, update: bool) -> DataFrame {
     let mut repo_data: Vec<CommitInfo> = vec![];
-    // if --source detail.csv 指定了，则从 detail.csv 中读取数据
-    // 否则从配置文件分析获取
-    let df = match args.source {
+    let df = match source {
         Some(source) => load_df_from_csv(source),
         None => {
             let (tx, rx) = mpsc::channel();
             let mut handlers = vec![];
 
-            for repo in conf.repos {
+            for repo in repos {
                 let t_sender = tx.clone();
                 let t = thread::spawn(move || {
                     let repo_name = repo.repo_name();
                     info!("repo parse start: {}", repo_name);
                     let start = time::Instant::now();
-                    let data = git::commit::repo_parse(&repo, args.update).unwrap();
+                    let data = git::commit::repo_parse(&repo, update).unwrap();
                     t_sender.send(data).unwrap();
                     let duration = time::Instant::now().duration_since(start);
                     info!(
@@ -345,6 +340,15 @@ fn main() {
                 .unwrap()
         }
     };
+    df
+}
+fn main() {
+    env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
+
+    let args = Args::parse();
+    let conf = config::Config::new(".git-stat.yml");
+
+    let df = get_df(args.source, conf.repos, args.update);
 
     if !args.no_detail {
         let detail_file = args.detail.clone().unwrap_or("detail.csv".to_string());

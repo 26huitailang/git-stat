@@ -153,13 +153,13 @@ pub fn repo_parse(
     for b in &repo_conf.branches {
         let branch_name = b.as_str();
         let _ = repo.find_remote("origin").expect("remote not found");
-        let args = git::Args {
+        let args = git::repo::Args {
             arg_remote: Some("origin".to_string()),
             arg_branch: Some(branch_name.to_string()),
         };
 
         if update {
-            git::pull(&args, &repo, repo_conf.username(), repo_conf.password())
+            git::repo::pull(&args, &repo, repo_conf.username(), repo_conf.password())
                 .expect("git pull failed");
         }
         // print current branch  and commit ref

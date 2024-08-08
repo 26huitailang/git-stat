@@ -1,7 +1,7 @@
 use data::Data;
 use std::{error::Error, io};
 
-use crate::ui::data;
+use crate::data;
 use ratatui::{
     backend::{Backend, CrosstermBackend},
     crossterm::{
@@ -11,12 +11,12 @@ use ratatui::{
     },
     layout::{Constraint, Layout, Margin, Rect},
     style::{self, Color, Modifier, Style, Stylize},
-    terminal::{Frame, Terminal},
     text::{Line, Text},
     widgets::{
         Block, BorderType, Cell, HighlightSpacing, Paragraph, Row, Scrollbar, ScrollbarOrientation,
         ScrollbarState, Table, TableState,
     },
+    Frame, Terminal,
 };
 use style::palette::tailwind;
 use unicode_width::UnicodeWidthStr;
@@ -170,7 +170,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut app: App) -> io::Result<(
 }
 
 fn ui(f: &mut Frame, app: &mut App) {
-    let rects = Layout::vertical([Constraint::Min(5), Constraint::Length(3)]).split(f.size());
+    let rects = Layout::vertical([Constraint::Min(5), Constraint::Length(3)]).split(f.area());
 
     app.set_colors();
 
@@ -318,7 +318,7 @@ fn render_footer(f: &mut Frame, app: &App, area: Rect) {
 
 #[cfg(test)]
 mod tests {
-    use crate::ui::data::Data;
+    use crate::data::Data;
 
     #[test]
     fn constraint_len_calculator() {
@@ -347,7 +347,7 @@ mod tests {
             longest_author_len,
             longest_insertions_len,
             longest_deletions_len,
-        ) = crate::ui::tui::constraint_len_calculator(&test_data);
+        ) = crate::tui::constraint_len_calculator(&test_data);
 
         assert_eq!(15, longest_repo_len);
         assert_eq!(19, longest_date_len);

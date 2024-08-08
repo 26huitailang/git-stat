@@ -23,8 +23,9 @@ config --> |Y|parse --> R1(repos) -->|parallel| R2(commit collect)
 R2 --> commit-list(commit info) --> detail.csv --> polars
 config --> |N|generate? --> config
 polars(polars calc) --> sqlparse? --> summary --> output --> |csv|csv
+output --> |polar|terminal
 output --> |table|tui
-output --> |polar|tui
+tui-->filter(input condition) --> polars
 ```
 
 ## features

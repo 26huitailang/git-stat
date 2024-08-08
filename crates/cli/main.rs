@@ -1,23 +1,21 @@
+use config;
+use config::Repo;
+use git::commit::CommitInfo;
+use git::commit::CommitInfoVec;
+use ui::data::Data;
+
 use chrono::{DateTime, Local, NaiveDate};
 use clap::builder::PossibleValuesParser;
 use clap::Parser;
-use config::Repo;
 use csv::Writer;
 use env_logger::Env;
-use git::commit::CommitInfoVec;
-use itertools::Itertools;
 use polars::lazy::dsl::GetOutput;
+use polars::prelude::*;
 use std::collections::{HashMap, HashSet};
 use std::sync::mpsc;
 use std::{error::Error, fs::File, path::Path};
 use std::{thread, time};
-mod config;
-mod git;
-mod ui;
-use polars::prelude::*;
 
-use crate::git::commit::CommitInfo;
-use crate::ui::data::Data;
 use log::{debug, error, info};
 
 /// 写入csv文件
@@ -260,12 +258,12 @@ impl<'a> MyDataFrame<'a> {
         };
 
         let is_valid = move |s: Series| -> Result<Option<Series>, _> {
-            let ss = s
+            let ss: Vec<_> = s
                 .str()
                 .unwrap()
                 .into_iter()
                 .map(|s| allowed_authors.contains(s.unwrap_or("")))
-                .collect_vec();
+                .collect();
             let s = Series::new("is_valid", ss);
             Ok(Some(s))
         };

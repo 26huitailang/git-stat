@@ -1,4 +1,4 @@
-use crate::{config, git};
+use config;
 use chrono::{DateTime, Local, TimeZone};
 use git2::{Cred, Diff, DiffOptions, RemoteCallbacks, Repository};
 use log::{debug, info, trace, warn};
@@ -6,6 +6,7 @@ use serde::{Serialize, Serializer};
 use std::error::Error;
 use std::io::{Cursor, Write};
 use std::path::Path;
+
 fn clone_or_open_repo(
     url: &str,
     into: &str,
@@ -153,13 +154,13 @@ pub fn repo_parse(
     for b in &repo_conf.branches {
         let branch_name = b.as_str();
         let _ = repo.find_remote("origin").expect("remote not found");
-        let args = git::repo::Args {
+        let args = crate::repo::Args {
             arg_remote: Some("origin".to_string()),
             arg_branch: Some(branch_name.to_string()),
         };
 
         if update {
-            git::repo::pull(&args, &repo, repo_conf.username(), repo_conf.password())
+            crate::repo::pull(&args, &repo, repo_conf.username(), repo_conf.password())
                 .expect("git pull failed");
         }
         // print current branch  and commit ref

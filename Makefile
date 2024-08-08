@@ -8,7 +8,7 @@ CARGO ?= cargo
 TARGET = my_rust_project
 
 # 编译标志
-FLAGS = -C opt-level=3 --edition=2018
+FLAGS = -C opt-level=3 --edition=2021
 
 # 默认任务：编译并运行项目
 all: build run

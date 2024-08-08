@@ -1,0 +1,29 @@
+[package]
+name = "git-stat"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap.workspace = true
+chrono = { workspace = true, features = ["serde"] }
+csv.workspace = true
+env_logger.workspace = true
+polars.workspace = true
+config = { path = "../config" }
+git = { path = "../git" }
+ui = { path = "../ui" }
+serde_json.workspace = true
+log.workspace = true
+
+[[bin]]
+name = "git-stat"
+path = "main.rs"
+
+[[example]]
+name = "args"
+
+[[example]]
+name = "polars"
+
+[[example]]
+name = "pd"

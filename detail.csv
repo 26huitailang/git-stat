@@ -1,51 +1,191 @@
 repo,date,branch,commit_id,author,message,insertions,deletions
-test-git-stat,2024-07-08 15:13:57,main,da36c262c2a69cfdf4e68dc1474399702f017578,26huitailang,"test
+test-git-stat,2024-07-08T15:13:57.000000,main,da36c262c2a69cfdf4e68dc1474399702f017578,26huitailang,"test
 ",2,2
-test-git-stat,2024-07-05 17:54:25,main,be984a300cb6346508b8229d0a869eb2432fabdc,26huitailang,Add new file,5,0
-test-git-stat,2024-07-05 17:51:47,main,c5fdfec77b305adb4ed3aff4f0dde8d543883499,26huitailang,Initial commit,93,0
-test-git-stat,2024-07-05 17:54:25,dev,be984a300cb6346508b8229d0a869eb2432fabdc,26huitailang,Add new file,5,0
-test-git-stat,2024-07-05 17:51:47,dev,c5fdfec77b305adb4ed3aff4f0dde8d543883499,26huitailang,Initial commit,93,0
-git-stat,2024-07-10 17:18:01,main,eb74a87f4cb7b67bdc2beae94d25dc52146ce1a5,26huitailang,"fix: username/password optional
+test-git-stat,2024-07-05T17:54:25.000000,main,be984a300cb6346508b8229d0a869eb2432fabdc,ChenSJ,Add new file,5,0
+test-git-stat,2024-07-05T17:51:47.000000,main,c5fdfec77b305adb4ed3aff4f0dde8d543883499,ChenSJ,Initial commit,93,0
+test-git-stat,2024-07-05T17:54:25.000000,dev,be984a300cb6346508b8229d0a869eb2432fabdc,ChenSJ,Add new file,5,0
+test-git-stat,2024-07-05T17:51:47.000000,dev,c5fdfec77b305adb4ed3aff4f0dde8d543883499,ChenSJ,Initial commit,93,0
+git-stat,2024-07-16T19:06:36.000000,main,23e53d39f7198dce17dc08a98b31027f7357d6f9,26huitailang,"feat: support env_logger
+",32,24
+git-stat,2024-07-16T18:06:36.000000,main,ec3e47f0c60454118353b298c47c7441845e0837,26huitailang,"feat: parallel collect multiple repos
+",40,29
+git-stat,2024-07-12T19:07:11.000000,main,7e60f78eb5c70b74cd1c97bf77bbc1747ab1a58a,26huitailang,"feat: save detail.csv default, --no-detail do not save
+",5,2
+git-stat,2024-07-12T18:24:41.000000,main,c2321a5c215abb81921d9bf3243d2553a5c62eac,26huitailang,"fix: calc summary from repo again
+",49,46
+git-stat,2024-07-12T16:57:25.000000,main,0e47ef08ea53608a06327a47dac25608f8e04f70,26huitailang,"feat: polars for calc & impl output trait
+",248,127
+git-stat,2024-07-11T18:13:59.000000,main,07ecb22aeb9d30adb8a95dbf6bc8271fecaba444,26huitailang,"refactor: output match
+",12,14
+git-stat,2024-07-11T17:43:55.000000,main,519d32d78749cd16aa4ded374f15b41b24911f8a,26huitailang,"chore: polars example
+",22,0
+git-stat,2024-07-10T19:51:09.000000,main,b7a65e2357f91abc316252ee8b1350d05fc06be5,26huitailang,"chore: remove warning
+",6,11
+git-stat,2024-07-10T17:41:46.000000,main,f53e80fd3dd4207cd8fd6d2a701ff0fa39632e1d,26huitailang,"fix: csv summary output
+",12,11
+git-stat,2024-07-10T17:18:01.000000,main,eb74a87f4cb7b67bdc2beae94d25dc52146ce1a5,26huitailang,"fix: username/password optional
 ",20,10
-git-stat,2024-07-10 17:10:21,main,ef9c4558ee5bbe9aed8563ea0acc77aea48561a6,26huitailang,"feat: output -F option support
+git-stat,2024-07-10T17:10:21.000000,main,ef9c4558ee5bbe9aed8563ea0acc77aea48561a6,26huitailang,"feat: output -F option support
 ",31,15
-git-stat,2024-07-10 16:54:40,main,5804fc7b165455f804e9f44ff7f5bdfcaf02a284,26huitailang,"feat: date filter
+git-stat,2024-07-10T16:54:40.000000,main,5804fc7b165455f804e9f44ff7f5bdfcaf02a284,26huitailang,"feat: date filter
 ",186,45
-git-stat,2024-07-10 13:52:42,main,47b35883d5ffa656b7a6fcbc21e50e7ea377147a,26huitailang,"feat: clap --detail option
+git-stat,2024-07-10T13:52:42.000000,main,47b35883d5ffa656b7a6fcbc21e50e7ea377147a,26huitailang,"feat: clap --detail option
 ",21,5
-git-stat,2024-07-10 11:29:52,main,6652100f31f9e2485730ef64ca0008923919bf20,26huitailang,"chore: cargo check fix
+git-stat,2024-07-10T11:29:52.000000,main,6652100f31f9e2485730ef64ca0008923919bf20,26huitailang,"chore: cargo check fix
 ",117,88
-git-stat,2024-07-09 19:20:08,main,3fcbd3fbc108d1d9d0ea6f46389901e5c3394545,26huitailang,"feat: display repo_name
+git-stat,2024-07-09T19:20:08.000000,main,3fcbd3fbc108d1d9d0ea6f46389901e5c3394545,26huitailang,"feat: display repo_name
 ",57,30
-git-stat,2024-07-09 17:29:55,main,129173b05506e93bd7a2b0511206c58a1331e692,26huitailang,"feat: author.alias mapped to author.name
+git-stat,2024-07-09T17:29:55.000000,main,129173b05506e93bd7a2b0511206c58a1331e692,26huitailang,"feat: author.alias mapped to author.name
 ",25,3
-git-stat,2024-07-09 17:05:01,main,cadd1c0353a917273ec51ac584d9c640c2365e25,26huitailang,"refactor: committer -> author
+git-stat,2024-07-09T17:05:01.000000,main,cadd1c0353a917273ec51ac584d9c640c2365e25,26huitailang,"refactor: committer -> author
 ",25,25
-git-stat,2024-07-08 18:49:06,main,7c59285e013230181aa957b03c23095f0016a6c9,26huitailang,"refactor: move mod
+git-stat,2024-07-08T18:49:06.000000,main,7c59285e013230181aa957b03c23095f0016a6c9,26huitailang,"refactor: move mod
 ",625,630
-git-stat,2024-07-08 18:05:58,main,060d0407e9bdbe2ae754b1ef200067560348be89,26huitailang,"fix: Cred callbacks support
+git-stat,2024-07-08T18:05:58.000000,main,060d0407e9bdbe2ae754b1ef200067560348be89,26huitailang,"fix: Cred callbacks support
 ",50,17
-git-stat,2024-07-08 17:06:32,main,1229d2ab65df0db39b5eacb686fa1bb1756c1c12,26huitailang,"fix: solve first commit diff/solve MR commit skip
+git-stat,2024-07-08T17:06:32.000000,main,1229d2ab65df0db39b5eacb686fa1bb1756c1c12,26huitailang,"fix: solve first commit diff/solve MR commit skip
 ",24,13
-git-stat,2024-07-08 15:09:14,main,57514643fbaf22d1f5fe9e580641e2c63d5fdde1,26huitailang,"feat: sum insertions/deletions by committer and branch
+git-stat,2024-07-08T15:09:14.000000,main,57514643fbaf22d1f5fe9e580641e2c63d5fdde1,26huitailang,"feat: sum insertions/deletions by committer and branch
 ",234,8
-git-stat,2024-07-05 14:40:15,main,5d21b9220fa8cac67f0f0d988fac21383535f9de,26huitailang,"feat: sum insertions/deletions by committer and branch
+git-stat,2024-07-05T14:40:15.000000,main,5d21b9220fa8cac67f0f0d988fac21383535f9de,26huitailang,"feat: sum insertions/deletions by committer and branch
 ",58,8
-git-stat,2024-07-05 10:37:31,main,18c5b4b8e1a32f4ac42accc679d9224c0d308281,26huitailang,"feat: tui table output
+git-stat,2024-07-05T10:37:31.000000,main,18c5b4b8e1a32f4ac42accc679d9224c0d308281,26huitailang,"feat: tui table output
 ",496,34
-git-stat,2024-07-03 15:19:33,main,45ce44f2dbe70368d3d15f5896b3c111a44597b3,26huitailang,"feat: output csv with yaml config
+git-stat,2024-07-03T15:19:33.000000,main,45ce44f2dbe70368d3d15f5896b3c111a44597b3,26huitailang,"feat: output csv with yaml config
 ",182,122
-git-stat,2024-07-01 18:42:53,main,8a040b4c47652f29ba309166f381a96dd669f792,26huitailang,"feat: config ymal parse
+git-stat,2024-07-01T18:42:53.000000,main,8a040b4c47652f29ba309166f381a96dd669f792,26huitailang,"feat: config ymal parse
 ",68,16
-git-stat,2024-06-28 15:41:20,main,24cfc0f5680f4068848f414d329fd518c44c63d5,26huitailang,"feat: support diff pathspec
+git-stat,2024-06-28T15:41:20.000000,main,24cfc0f5680f4068848f414d329fd518c44c63d5,26huitailang,"feat: support diff pathspec
 ",13,3
-git-stat,2024-06-28 14:42:19,main,a047123ccba406f74c245386d0d3688b7dc840eb,26huitailang,"feat: write csv
+git-stat,2024-06-28T14:42:19.000000,main,a047123ccba406f74c245386d0d3688b7dc840eb,26huitailang,"feat: write csv
 ",64,2
-git-stat,2024-06-28 11:23:13,main,b28dac65781513234f943074633407d67e4dba54,26huitailang,"fix import
+git-stat,2024-06-28T11:23:13.000000,main,b28dac65781513234f943074633407d67e4dba54,26huitailang,"fix import
 ",1,1
-git-stat,2024-06-28 11:11:12,main,c4cf91087f7805d21599759565ae0c781dbc0aba,26huitailang,"feat: println commit diff(inserted deleted author)
+git-stat,2024-06-28T11:11:12.000000,main,c4cf91087f7805d21599759565ae0c781dbc0aba,26huitailang,"feat: println commit diff(inserted deleted author)
 ",23,3
-git-stat,2024-06-27 19:00:41,main,f4c8d45a80601a041f24ddc001bbf96a1a308ed5,26huitailang,"feat: clone and branch
+git-stat,2024-06-27T19:00:41.000000,main,f4c8d45a80601a041f24ddc001bbf96a1a308ed5,26huitailang,"feat: clone and branch
 ",13,12
-git-stat,2024-06-27 18:21:28,main,0073dfec581e63aa0b29d5494e35616849272180,26huitailang,"init
+git-stat,2024-06-27T18:21:28.000000,main,0073dfec581e63aa0b29d5494e35616849272180,26huitailang,"init
 ",36,0
+yogo,2024-06-18T15:34:29.000000,main,8fc58a610cd94e07e0454d1ffb81ef33b43af66e,26huitailang,"chore: webauthn demo
+",9,2
+yogo,2024-04-02T14:06:36.000000,main,134915e89f047f99815527382b661fbada068e4e,26huitailang,"chore: webauthn register/login demo
+",366,12
+yogo,2023-07-10T23:24:36.000000,main,818cb909c5ddfa343cd027290df0255984b9d53b,26huitailang,"feat: add gin-limiter
+",13,0
+yogo,2023-04-05T20:28:58.000000,main,bb4b2b8926b62fa2fdf49990192b07881c00f06a,26huitailang,"fix: mapstructure decode read error without TagName config
+",1,1
+yogo,2022-11-11T13:59:28.000000,main,ab542033d3f2b420e7c51d03e68cf8fedf0ddea3,26huitailang,"fix: mapstructure decode read error without TagName config
+",1,1
+yogo,2022-09-06T09:48:26.000000,main,0943103c081c8a081038162208fe247f0b1f0919,26huitailang,"feat: deploy command && support docker
+",2,0
+yogo,2022-09-04T23:21:34.000000,main,69c03edec97c8d4c1c95a9c3aaa2a2ef6c068ea5,26huitailang,"feat: cache service
+",40,0
+yogo,2022-09-04T22:55:25.000000,main,9e6d4caaa33de702ae818a1b94c170b4ddc7c6cb,26huitailang,"feat: redis service
+",2,0
+yogo,2022-09-04T12:21:59.000000,main,15bd4bff23b20666e6afaca60e18f49c3de341a9,26huitailang,"feat: log/orm service
+",23,1
+yogo,2022-09-04T12:21:42.000000,main,f1f4760863ba420459c5a7dd44ccd4f64284f737,26huitailang,"feat: orm/log service
+",87,2
+yogo,2022-09-03T15:41:16.000000,main,9cfa3b5368df685640f6af8123243daeb4cb8f0d,26huitailang,"feat: add swagger gen
+",233,27
+yogo,2022-09-01T00:39:33.000000,main,4069d857c526a3b3fd3087fce86b584487d1a2b3,26huitailang,"feat: command list treeview
+",42,1
+yogo,2022-08-30T13:27:17.000000,main,59716015878737fc5d6d5e7e462d2101eb761364,26huitailang,"add command new cli
+",5,2
+yogo,2022-08-28T22:18:53.000000,main,17dee5b780573c2ef0e1529ef663312784efa780,26huitailang,"add dev cli
+",2,0
+yogo,2022-08-26T13:31:28.000000,main,3c55ac5d7537944889205ad593c210579d88e20b,26huitailang,"update static router to gin-contrib/static
+",2,1
+yogo,2021-12-24T22:46:29.000000,main,b867cea110a9ddb1a7fcbaededbed3be78ca4261,26huitailang,"TODO: 热重载配置没有生效
+",7,6
+yogo,2021-12-14T23:31:58.000000,main,6f1e4df119c4cfcea73e221251cd16b1d2e94b4b,26huitailang,":sparkles: distributed cron
+",4,26
+yogo,2021-12-14T23:31:58.000000,main,ea1be67f9d9f0cac9bf8b354c9768bd800ed8ed8,26huitailang,":sparkles: rootCmd cron command
+",2,0
+yogo,2021-12-14T23:31:58.000000,main,0ef156922103985526287b3a2784df99e07951d2,26huitailang,":sparkles: env config
+",5,0
+yogo,2021-11-07T22:22:33.000000,main,a4955944c954940ce1c79317b1eba67bf477d567,26huitailang,":sparkles: integrated cobra
+",326,152
+yogo,2021-10-31T21:28:05.000000,main,baf8c7aa5b4a6288756a7566e83cf894a55eef45,26huitailang,"todo: 012 目录未完成
+",3,0
+yogo,2021-10-20T22:26:28.000000,main,a0897f789e344a057b6707e03311841601741894,26huitailang,"feat: service container/provider
+",77,11
+yogo,2021-10-04T11:00:00.000000,main,11518b0a9e1de6bb2caf1c56d4dd59d5142f39c8,26huitailang,"chore: import gin 1.7.3 source code
+",21,26
+yogo,2021-09-26T23:14:50.000000,main,17bcfc2d24492e76229303d3ce149e2aafdf4f8e,26huitailang,"feat: graceful shutdown
+",26,3
+yogo,2021-09-25T21:52:40.000000,main,e4e5a4841119e42cc0a2c4a6fc0a6af0a083db22,26huitailang,"feat: params
+",1,2
+yogo,2021-09-25T21:52:40.000000,main,b53e690f96cdabb8afab829c3ca721c7417adca5,26huitailang,"fix: response
+",8,6
+yogo,2021-09-21T23:05:21.000000,main,79edfb10a3cb7ae744cc4cb4dc1a582b3c148ffa,26huitailang,"feat: middleware
+",9,40
+yogo,2021-09-20T17:02:27.000000,main,bc0ee1300ed49ecf8860081ec9842efcf9b5217c,26huitailang,"feat: trie router
+",20,2
+yogo,2021-09-19T21:28:49.000000,main,c5e5667a28cb05212d4d80ca59c1a1e85045c8f6,26huitailang,"feat: static route
+",20,1
+yogo,2021-09-19T20:21:04.000000,main,caec52ea103ddda76469dbd51375bba77f07d2b8,26huitailang,"update: custom context
+",34,3
+yogo,2021-09-19T16:30:16.000000,main,5c64841c8edfff040e8bc62e5a09d499e556920e,26huitailang,"feat: custom context
+",23,1
+yogo,2021-09-18T22:41:25.000000,main,251f0f8ee387af3eaaa63586ed218636e7375be9,26huitailang,"feat: core struct
+",15,0
+yogo,2023-04-05T20:28:58.000000,dev,bb4b2b8926b62fa2fdf49990192b07881c00f06a,26huitailang,"fix: mapstructure decode read error without TagName config
+",1,1
+yogo,2022-11-11T13:59:28.000000,dev,ab542033d3f2b420e7c51d03e68cf8fedf0ddea3,26huitailang,"fix: mapstructure decode read error without TagName config
+",1,1
+yogo,2022-09-06T09:48:26.000000,dev,0943103c081c8a081038162208fe247f0b1f0919,26huitailang,"feat: deploy command && support docker
+",2,0
+yogo,2022-09-04T23:21:34.000000,dev,69c03edec97c8d4c1c95a9c3aaa2a2ef6c068ea5,26huitailang,"feat: cache service
+",40,0
+yogo,2022-09-04T22:55:25.000000,dev,9e6d4caaa33de702ae818a1b94c170b4ddc7c6cb,26huitailang,"feat: redis service
+",2,0
+yogo,2022-09-04T12:21:59.000000,dev,15bd4bff23b20666e6afaca60e18f49c3de341a9,26huitailang,"feat: log/orm service
+",23,1
+yogo,2022-09-04T12:21:42.000000,dev,f1f4760863ba420459c5a7dd44ccd4f64284f737,26huitailang,"feat: orm/log service
+",87,2
+yogo,2022-09-03T15:41:16.000000,dev,9cfa3b5368df685640f6af8123243daeb4cb8f0d,26huitailang,"feat: add swagger gen
+",233,27
+yogo,2022-09-01T00:39:33.000000,dev,4069d857c526a3b3fd3087fce86b584487d1a2b3,26huitailang,"feat: command list treeview
+",42,1
+yogo,2022-08-30T13:27:17.000000,dev,59716015878737fc5d6d5e7e462d2101eb761364,26huitailang,"add command new cli
+",5,2
+yogo,2022-08-28T22:18:53.000000,dev,17dee5b780573c2ef0e1529ef663312784efa780,26huitailang,"add dev cli
+",2,0
+yogo,2022-08-26T13:31:28.000000,dev,3c55ac5d7537944889205ad593c210579d88e20b,26huitailang,"update static router to gin-contrib/static
+",2,1
+yogo,2021-12-24T22:46:29.000000,dev,b867cea110a9ddb1a7fcbaededbed3be78ca4261,26huitailang,"TODO: 热重载配置没有生效
+",7,6
+yogo,2021-12-14T23:31:58.000000,dev,0ef156922103985526287b3a2784df99e07951d2,26huitailang,":sparkles: env config
+",5,0
+yogo,2021-12-14T23:31:58.000000,dev,ea1be67f9d9f0cac9bf8b354c9768bd800ed8ed8,26huitailang,":sparkles: rootCmd cron command
+",2,0
+yogo,2021-12-14T23:31:58.000000,dev,6f1e4df119c4cfcea73e221251cd16b1d2e94b4b,26huitailang,":sparkles: distributed cron
+",4,26
+yogo,2021-11-07T22:22:33.000000,dev,a4955944c954940ce1c79317b1eba67bf477d567,26huitailang,":sparkles: integrated cobra
+",326,152
+yogo,2021-10-31T21:28:05.000000,dev,baf8c7aa5b4a6288756a7566e83cf894a55eef45,26huitailang,"todo: 012 目录未完成
+",3,0
+yogo,2021-10-20T22:26:28.000000,dev,a0897f789e344a057b6707e03311841601741894,26huitailang,"feat: service container/provider
+",77,11
+yogo,2021-10-04T11:00:00.000000,dev,11518b0a9e1de6bb2caf1c56d4dd59d5142f39c8,26huitailang,"chore: import gin 1.7.3 source code
+",21,26
+yogo,2021-09-26T23:14:50.000000,dev,17bcfc2d24492e76229303d3ce149e2aafdf4f8e,26huitailang,"feat: graceful shutdown
+",26,3
+yogo,2021-09-25T21:52:40.000000,dev,e4e5a4841119e42cc0a2c4a6fc0a6af0a083db22,26huitailang,"feat: params
+",1,2
+yogo,2021-09-25T21:52:40.000000,dev,b53e690f96cdabb8afab829c3ca721c7417adca5,26huitailang,"fix: response
+",8,6
+yogo,2021-09-21T23:05:21.000000,dev,79edfb10a3cb7ae744cc4cb4dc1a582b3c148ffa,26huitailang,"feat: middleware
+",9,40
+yogo,2021-09-20T17:02:27.000000,dev,bc0ee1300ed49ecf8860081ec9842efcf9b5217c,26huitailang,"feat: trie router
+",20,2
+yogo,2021-09-19T21:28:49.000000,dev,c5e5667a28cb05212d4d80ca59c1a1e85045c8f6,26huitailang,"feat: static route
+",20,1
+yogo,2021-09-19T20:21:04.000000,dev,caec52ea103ddda76469dbd51375bba77f07d2b8,26huitailang,"update: custom context
+",34,3
+yogo,2021-09-19T16:30:16.000000,dev,5c64841c8edfff040e8bc62e5a09d499e556920e,26huitailang,"feat: custom context
+",23,1
+yogo,2021-09-18T22:41:25.000000,dev,251f0f8ee387af3eaaa63586ed218636e7375be9,26huitailang,"feat: core struct
+",15,0

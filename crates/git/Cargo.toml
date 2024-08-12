@@ -8,7 +8,8 @@ git2 = "0.19.0"
 chrono.workspace = true
 log.workspace = true
 serde.workspace = true
-config = { path = "../config"}
+# TODO: 不要依赖其他config，集成时使用From实现转换
+config = { path = "../config" }
 csv.workspace = true
 clap.workspace = true
 

@@ -13,7 +13,9 @@ FLAGS = -C opt-level=3 --edition=2021
 # 默认任务：编译并运行项目
 all: build run
 
-# 使用Cargo构建项目
+examples:
+	$(CARGO) build --examples
+
 build: test
 	$(CARGO) build $(FLAGS)
 
@@ -63,4 +65,4 @@ help:
 	@echo "  uninstall - Uninstall the project"
 	@echo "  help      - Show this help message"
 
-.PHONY: all build run clean fmt test release install uninstall help
+.PHONY: all build run clean fmt test release install uninstall help examples

@@ -5,6 +5,8 @@
 ![polars](./docs/images/polars.png)
 ![ratatui](./docs/images/tui.png)
 
+![](./design.excalidraw.png)
+
 ## Usage
 
 working on demo ...

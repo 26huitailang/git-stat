@@ -2,7 +2,7 @@ use config;
 use config::Repo;
 use git::commit::CommitInfo;
 use git::commit::CommitInfoVec;
-use ui::data::Data;
+use tui::data::Data;
 
 use chrono::{DateTime, Local, NaiveDate};
 use clap::builder::PossibleValuesParser;
@@ -134,7 +134,7 @@ fn convert_df_to_data_vec(df: DataFrame) -> Vec<Data> {
 impl Output for TableOutput {
     fn output(&self) -> Result<(), Box<dyn Error>> {
         let data_vec = convert_df_to_data_vec(self.df.clone());
-        ui::tui::run(data_vec)
+        tui::tui::run(data_vec)
     }
 }
 

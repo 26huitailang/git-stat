@@ -11,7 +11,7 @@ env_logger.workspace = true
 polars.workspace = true
 config = { path = "../config" }
 git = { path = "../git" }
-ui = { path = "../ui" }
+tui = { path = "../tui" }
 serde_json.workspace = true
 log.workspace = true
 

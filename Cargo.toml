@@ -1,7 +1,9 @@
 [workspace]
-members = ["crates/cli", "crates/config", "crates/git", "crates/ui"]
+members = ["crates/cli", "crates/config", "crates/git", "crates/tui"]
 resolver = "1"
 
+[profile.release]
+opt-level = 3
 
 [workspace.dependencies]
 clap = { version = "4.5.8", features = ["derive"] }
